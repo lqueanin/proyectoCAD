@@ -1,3 +1,21 @@
+// =============================================
+// FUNCIONES CLAVE PARA TRASLACIÓN
+// =============================================
+
+function aplicarTraslacion(objeto, dx, dy) {    
+    return {
+        x: objeto.x + dx,
+        y: objeto.y + dy
+    };
+}
+
+function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
+    const nuevaPos = aplicarTraslacion(objeto, dx, dy);
+    nuevaPos.x = Math.max(minX, Math.min(maxX, nuevaPos.x));
+    nuevaPos.y = Math.max(minY, Math.min(maxY, nuevaPos.y));
+    return nuevaPos;
+}
+
 // Inicialización del juego
 document.addEventListener('DOMContentLoaded', function() {
     createParticles();
@@ -158,16 +176,38 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('keyup', e => keys[e.key] = false);
 
-// Actualizar juego
+// =============================================
+// ACTUALIZAR JUEGO CON TRASLACIONES GEOMÉTRICAS
+// =============================================
 function update() {
     if (!gameActive || gamePaused || gameState.gameOver) return;
     
-    // Movimiento de la paleta
+    // =============================================
+    // MOVIMIENTO DE LA PALETA CON TRASLACIÓN Y LÍMITES
+    // =============================================
     if (keys['ArrowLeft']) {
-        paddle.x = Math.max(paddle.minX, paddle.x - paddle.speed);
+        const nuevaPos = aplicarTraslacionConLimites(
+            paddle,
+            -paddle.speed,
+            0,
+            paddle.minX,
+            paddle.maxX,
+            0,
+            HEIGHT
+        );
+        paddle.x = nuevaPos.x;
     }
     if (keys['ArrowRight']) {
-        paddle.x = Math.min(paddle.maxX, paddle.x + paddle.speed);
+        const nuevaPos = aplicarTraslacionConLimites(
+            paddle,
+            paddle.speed,
+            0,
+            paddle.minX,
+            paddle.maxX,
+            0,
+            HEIGHT
+        );
+        paddle.x = nuevaPos.x;
     }
     
     // Lanzar pelota con espacio
@@ -179,14 +219,25 @@ function update() {
     
     // Si la pelota no ha sido lanzada, seguir a la paleta
     if (!gameState.ballLaunched) {
-        ball.x = paddle.x + paddle.w / 2;
-        ball.y = paddle.y - ball.r - 2;
+        // =============================================
+        // TRASLACIÓN DE PELOTA A POSICIÓN DE PALETA
+        // =============================================
+        const posicionSobrePaleta = {
+            x: paddle.x + paddle.w / 2,
+            y: paddle.y - ball.r - 2
+        };
+        ball.x = posicionSobrePaleta.x;
+        ball.y = posicionSobrePaleta.y;
         return;
     }
     
-    // Movimiento de la pelota
-    ball.x += ball.vx;
-    ball.y += ball.vy;
+    // =============================================
+    // MOVIMIENTO DE LA PELOTA CON TRASLACIÓN
+    // =============================================
+    const vectorTraslacion = { dx: ball.vx, dy: ball.vy };
+    const nuevaPosPelota = aplicarTraslacion(ball, vectorTraslacion.dx, vectorTraslacion.dy);
+    ball.x = nuevaPosPelota.x;
+    ball.y = nuevaPosPelota.y;
     
     // Rebotes en paredes
     if (ball.x - ball.r <= 0 || ball.x + ball.r >= WIDTH) {
@@ -342,8 +393,14 @@ function createParticleEffect(x, y, count, color = '#ffffff') {
 
 function drawParticles() {
     particles.forEach((particle, index) => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
+        // =============================================
+        // MOVIMIENTO DE PARTÍCULAS CON TRASLACIÓN
+        // =============================================
+        const vectorTraslacion = { dx: particle.vx, dy: particle.vy };
+        const nuevaPos = aplicarTraslacion(particle, vectorTraslacion.dx, vectorTraslacion.dy);
+        particle.x = nuevaPos.x;
+        particle.y = nuevaPos.y;
+        
         particle.life--;
         
         if (particle.life <= 0) {
@@ -369,8 +426,15 @@ function gameLoop() {
 // Funciones auxiliares
 function resetBall() {
     gameState.ballLaunched = false;
-    ball.x = paddle.x + paddle.w / 2;
-    ball.y = paddle.y - ball.r - 2;
+    // =============================================
+    // RESET DE PELOTA A POSICIÓN SOBRE PALETA
+    // =============================================
+    const posicionReset = {
+        x: paddle.x + paddle.w / 2,
+        y: paddle.y - ball.r - 2
+    };
+    ball.x = posicionReset.x;
+    ball.y = posicionReset.y;
     ball.vx = 0;
     ball.vy = 0;
 }

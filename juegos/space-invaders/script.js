@@ -1,3 +1,21 @@
+// =============================================
+// FUNCIONES CLAVE PARA TRASLACIÓN
+// =============================================
+
+function aplicarTraslacion(objeto, dx, dy) {    
+    return {
+        x: objeto.x + dx,
+        y: objeto.y + dy
+    };
+}
+
+function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
+    const nuevaPos = aplicarTraslacion(objeto, dx, dy);
+    nuevaPos.x = Math.max(minX, Math.min(maxX, nuevaPos.x));
+    nuevaPos.y = Math.max(minY, Math.min(maxY, nuevaPos.y));
+    return nuevaPos;
+}
+
 // Inicialización del juego
 document.addEventListener('DOMContentLoaded', function() {
     createParticles();
@@ -177,28 +195,64 @@ function shoot() {
     setTimeout(() => player.canShoot = true, player.shootCooldown);
 }
 
-// Actualizar juego
+// =============================================
+// ACTUALIZAR JUEGO CON TRASLACIONES GEOMÉTRICAS
+// =============================================
 function update() {
     if (!gameActive || gamePaused || gameState.gameOver) return;
     
-    // Movimiento del jugador
+    // =============================================
+    // MOVIMIENTO DEL JUGADOR CON TRASLACIÓN Y LÍMITES
+    // =============================================
     if (keys["ArrowLeft"]) {
-        player.x -= player.speed;
+        const nuevaPos = aplicarTraslacionConLimites(
+            player,
+            -player.speed,
+            0,
+            0,
+            canvas.width - player.width,
+            0,
+            canvas.height
+        );
+        player.x = nuevaPos.x;
     }
     if (keys["ArrowRight"]) {
-        player.x += player.speed;
+        const nuevaPos = aplicarTraslacionConLimites(
+            player,
+            player.speed,
+            0,
+            0,
+            canvas.width - player.width,
+            0,
+            canvas.height
+        );
+        player.x = nuevaPos.x;
     }
-    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
     
-    // Movimiento de balas
-    bullets.forEach(bullet => bullet.y -= bullet.speed);
+    // =============================================
+    // MOVIMIENTO DE BALAS CON TRASLACIÓN VERTICAL
+    // =============================================
+    bullets.forEach(bullet => {
+        const vectorTraslacion = { dx: 0, dy: -bullet.speed }; // T = (0, -speed)
+        const nuevaPos = aplicarTraslacion(bullet, vectorTraslacion.dx, vectorTraslacion.dy);
+        bullet.x = nuevaPos.x;
+        bullet.y = nuevaPos.y;
+    });
     bullets = bullets.filter(bullet => bullet.y + bullet.height > 0);
     
-    // Movimiento de invasores
+    // =============================================
+    // MOVIMIENTO DE INVASORES CON TRASLACIÓN HORIZONTAL
+    // =============================================
     let hitEdge = false;
     invaders.forEach(invader => {
         if (invader.alive) {
-            invader.x += enemyDirection * invader.speed;
+            const vectorTraslacion = { 
+                dx: enemyDirection * invader.speed, 
+                dy: 0 
+            };
+            const nuevaPos = aplicarTraslacion(invader, vectorTraslacion.dx, vectorTraslacion.dy);
+            invader.x = nuevaPos.x;
+            
             if (invader.x <= 0 || invader.x + invader.width >= canvas.width) {
                 hitEdge = true;
             }
@@ -209,7 +263,12 @@ function update() {
         enemyDirection *= -1;
         invaders.forEach(invader => {
             if (invader.alive) {
-                invader.y += 20;
+                // =============================================
+                // TRASLACIÓN VERTICAL HACIA ABAJO AL LLEGAR AL BORDE
+                // =============================================
+                const vectorDescenso = { dx: 0, dy: 20 };
+                const nuevaPos = aplicarTraslacion(invader, vectorDescenso.dx, vectorDescenso.dy);
+                invader.y = nuevaPos.y;
             }
         });
     }

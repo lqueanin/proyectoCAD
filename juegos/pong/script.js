@@ -4,6 +4,23 @@ document.addEventListener('DOMContentLoaded', function() {
     initGame();
 });
 
+// =============================================
+// FUNCIONES CLAVE PARA TRASLACIÓN
+// =============================================
+
+function aplicarTraslacion(objeto, dx, dy) {    
+    return {
+        x: objeto.x + dx,
+        y: objeto.y + dy
+    };
+}
+
+function aplicarTraslacionConLimites(objeto, dx, dy, minY, maxY) {
+    const nuevaPos = aplicarTraslacion(objeto, dx, dy);
+    nuevaPos.y = Math.max(minY, Math.min(maxY, nuevaPos.y));
+    return nuevaPos;
+}
+
 // Sistema de partículas
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
@@ -127,13 +144,9 @@ function initGame() {
     resetBall();
     initParticles();
     updateUI();
-    // Configurar botón de inicio
     const startBtn = document.getElementById("startBtn");
     const startScreen = document.getElementById("startScreen");
-    
-    // Mostrar pantalla de inicio solo al cargar
     startScreen.style.display = "flex";
-    
     startBtn.addEventListener("click", function() {
         startScreen.style.display = "none";
         gameActive = true;
@@ -158,34 +171,71 @@ function gameLoop() {
     }
 }
 
-// Actualizar lógica del juego
+// Lógica del juego
 function update() {
-    // Movimiento de paletas
+
+    // =============================================
+    // TRASLACIÓN DE PALETAS USANDO P' = P + T
+    // =============================================
+
+    // Paleta izquierda - Traslación vertical
     if (keys["w"] || keys["W"]) {
-        leftPaddle.y -= leftPaddle.speed;
+        const nuevaPos = aplicarTraslacionConLimites(
+            leftPaddle, 
+            0, 
+            -leftPaddle.speed,
+            0,  // ← AGREGAR ESTE PARÁMETRO (límite inferior)
+            HEIGHT - leftPaddle.h  // ← AGREGAR ESTE PARÁMETRO (límite superior)
+        );
+        leftPaddle.y = nuevaPos.y;
     }
     if (keys["s"] || keys["S"]) {
-        leftPaddle.y += leftPaddle.speed;
+        const nuevaPos = aplicarTraslacionConLimites(
+            leftPaddle, 
+            0, 
+            leftPaddle.speed,
+            0, 
+            HEIGHT - leftPaddle.h
+        );
+        leftPaddle.y = nuevaPos.y;
     }
+
+    // Paleta derecha - Traslación vertical
     if (keys["ArrowUp"]) {
-        rightPaddle.y -= rightPaddle.speed;
+        const nuevaPos = aplicarTraslacionConLimites(
+            rightPaddle, 
+            0, 
+            -rightPaddle.speed, // T = (0, -speed)
+            0, 
+            HEIGHT - rightPaddle.h
+        );
+        rightPaddle.y = nuevaPos.y;
     }
     if (keys["ArrowDown"]) {
-        rightPaddle.y += rightPaddle.speed;
+        const nuevaPos = aplicarTraslacionConLimites(
+            rightPaddle, 
+            0, 
+            rightPaddle.speed,  // T = (0, +speed)
+            0, 
+            HEIGHT - rightPaddle.h
+        );
+        rightPaddle.y = nuevaPos.y;
     }
 
-    // Limitar paletas dentro del canvas
-    leftPaddle.y = Math.max(0, Math.min(HEIGHT - leftPaddle.h, leftPaddle.y));
-    rightPaddle.y = Math.max(0, Math.min(HEIGHT - rightPaddle.h, rightPaddle.y));
+    // =============================================
+    // TRASLACIÓN DE LA PELOTA USANDO P' = P + T
+    // =============================================
+    
+    const vectorTraslacion = {
+        dx: ball.dx * speedMultiplier,
+        dy: ball.dy * speedMultiplier
+    };
+    
+    const nuevaPosPelota = aplicarTraslacion(ball, vectorTraslacion.dx, vectorTraslacion.dy);
+    ball.x = nuevaPosPelota.x;
+    ball.y = nuevaPosPelota.y;
 
-    // Movimiento de la pelota
-    ball.x += ball.dx * speedMultiplier;
-    ball.y += ball.dy * speedMultiplier;
-
-    // Actualizar partículas
     updateParticles();
-
-    // Actualizar dificultad
     updateDifficulty();
 
     // Rebote en paredes superior e inferior

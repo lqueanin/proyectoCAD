@@ -4,6 +4,30 @@ document.addEventListener('DOMContentLoaded', function() {
     initGame();
 });
 
+// =============================================
+// FUNCIONES CLAVE PARA TRASLACIÓN
+// =============================================
+
+function aplicarTraslacion(objeto, dx, dy) {    
+    return {
+        x: objeto.x + dx,
+        y: objeto.y + dy
+    };
+}
+
+function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
+    const nuevaPos = aplicarTraslacion(objeto, dx, dy);
+    nuevaPos.x = Math.max(minX, Math.min(maxX, nuevaPos.x));
+    nuevaPos.y = Math.max(minY, Math.min(maxY, nuevaPos.y));
+    return nuevaPos;
+}
+
+function aplicarTraslacionConAngulo(objeto, velocidad, angulo) {
+    const dx = Math.cos(angulo) * velocidad;
+    const dy = Math.sin(angulo) * velocidad;
+    return aplicarTraslacion(objeto, dx, dy);
+}
+
 // Sistema de partículas
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
@@ -206,12 +230,36 @@ function update() {
         player.blink = (player.blink + 1) % 10;
     }
     
-    // Movimiento del jugador
+    // =============================================
+    // TRASLACIÓN DEL JUGADOR USANDO P' = P + T
+    // =============================================
+    
     if (keys['ArrowLeft'] || keys['a']) {
-        player.x = Math.max(player.minX, player.x - player.speed);
+        const nuevaPos = aplicarTraslacionConLimites(
+            player, 
+            -player.speed,  // T = (-speed, 0)
+            0,
+            player.minX, 
+            player.maxX,
+            0,
+            HEIGHT
+        );
+        player.x = nuevaPos.x;
+        player.y = nuevaPos.y;
     }
+    
     if (keys['ArrowRight'] || keys['d']) {
-        player.x = Math.min(player.maxX, player.x + player.speed);
+        const nuevaPos = aplicarTraslacionConLimites(
+            player, 
+            player.speed,   // T = (+speed, 0)
+            0,
+            player.minX, 
+            player.maxX,
+            0,
+            HEIGHT
+        );
+        player.x = nuevaPos.x;
+        player.y = nuevaPos.y;
     }
     
     // Disparos
@@ -227,18 +275,32 @@ function update() {
         lastShotTime = currentTime;
     }
 
-    // Movimiento de disparos
+    // =============================================
+    // TRASLACIÓN DE DISPAROS USANDO P' = P + T
+    // =============================================
+    
     bullets.forEach(b => {
-        b.y -= b.speed;
+        const vectorTraslacion = { dx: 0, dy: -b.speed }; // T = (0, -speed)
+        const nuevaPos = aplicarTraslacion(b, vectorTraslacion.dx, vectorTraslacion.dy);
+        b.x = nuevaPos.x;
+        b.y = nuevaPos.y;
     });
     bullets = bullets.filter(b => b.y + b.h > 0);
 
-    // Movimiento de enemigos
+    // =============================================
+    // TRASLACIÓN DE ENEMIGOS USANDO DIFERENTES TIPOS DE MOVIMIENTO
+    // =============================================
+    
     enemies.forEach(e => {
         if (e.state === 'entering') {
             e.entryTime += 1;
-            e.y = -40 + e.entryTime;
             
+            // Traslación vertical simple
+            const vectorEntrada = { dx: 0, dy: 1 }; // T = (0, 1)
+            const nuevaPos = aplicarTraslacion(e, vectorEntrada.dx, vectorEntrada.dy);
+            e.y = nuevaPos.y;
+            
+            // Movimiento curvo con función seno
             const curveOffset = Math.sin(e.entryTime * e.curveFrequency) * e.curveAmplitude;
             e.x = e.targetX + curveOffset;
             
@@ -247,7 +309,9 @@ function update() {
                 e.state = 'formation';
             }
         } else if (e.state === 'formation') {
-            e.x = e.targetX + Math.sin(gameTime * 0.05) * 10;
+            // Movimiento oscilatorio en formación
+            const oscilacion = Math.sin(gameTime * 0.05) * 10;
+            e.x = e.targetX + oscilacion;
             
             if (!e.hasDived && e.diveCooldown <= 0 && Math.random() < 0.005) {
                 e.state = 'diving';
@@ -258,8 +322,13 @@ function update() {
                 e.diveCooldown--;
             }
         } else if (e.state === 'diving') {
-            e.x += Math.cos(e.diveAngle) * e.speed * 2;
-            e.y += Math.sin(e.diveAngle) * e.speed * 2;
+            // =============================================
+            // TRASLACIÓN CON ÁNGULO: P' = P + (velocidad * cos(θ), velocidad * sin(θ))
+            // =============================================
+            
+            const nuevaPos = aplicarTraslacionConAngulo(e, e.speed * 2, e.diveAngle);
+            e.x = nuevaPos.x;
+            e.y = nuevaPos.y;
             
             if (player.invulnerable <= 0 && 
                 e.x < player.x + player.w && e.x + e.w > player.x && 
@@ -274,6 +343,10 @@ function update() {
                 e.hasDived = true;
             }
         } else if (e.state === 'returning') {
+            // =============================================
+            // TRASLACIÓN HACIA OBJETIVO: P' = P + vector_normalizado * velocidad
+            // =============================================
+            
             const dx = e.targetX - e.x;
             const dy = e.targetY - e.y;
             const distance = Math.sqrt(dx*dx + dy*dy);
@@ -283,22 +356,36 @@ function update() {
                 e.y = e.targetY;
                 e.state = 'formation';
             } else {
-                e.x += (dx / distance) * e.speed;
-                e.y += (dy / distance) * e.speed;
+                const vectorNormalizado = {
+                    dx: dx / distance,
+                    dy: dy / distance
+                };
+                const nuevaPos = aplicarTraslacion(e, vectorNormalizado.dx * e.speed, vectorNormalizado.dy * e.speed);
+                e.x = nuevaPos.x;
+                e.y = nuevaPos.y;
             }
         }
     });
 
-    // Movimiento del jefe
+    // =============================================
+    // TRASLACIÓN DEL JEFE USANDO P' = P + T
+    // =============================================
+    
     if (boss) {
         if (boss.state === 'entering') {
-            boss.y += 1;
+            // Traslación vertical hacia posición objetivo
+            const vectorEntrada = { dx: 0, dy: 1 }; // T = (0, 1)
+            const nuevaPos = aplicarTraslacion(boss, vectorEntrada.dx, vectorEntrada.dy);
+            boss.y = nuevaPos.y;
+            
             if (boss.y >= boss.targetY) {
                 boss.y = boss.targetY;
                 boss.state = 'formation';
             }
         } else if (boss.state === 'formation') {
-            boss.x = boss.targetX + Math.sin(gameTime * 0.03) * 30;
+            // Movimiento oscilatorio horizontal
+            const oscilacion = Math.sin(gameTime * 0.03) * 30;
+            boss.x = boss.targetX + oscilacion;
             
             boss.attackCooldown--;
             if (boss.attackCooldown <= 0) {
@@ -307,7 +394,11 @@ function update() {
                 boss.tractorBeam.height = 0;
             }
         } else if (boss.state === 'prepareTractor') {
-            boss.y += 0.5;
+            // Traslación vertical hacia abajo
+            const vectorDescenso = { dx: 0, dy: 0.5 }; // T = (0, 0.5)
+            const nuevaPos = aplicarTraslacion(boss, vectorDescenso.dx, vectorDescenso.dy);
+            boss.y = nuevaPos.y;
+            
             if (boss.y >= 150) {
                 boss.state = 'tractorAttack';
                 boss.tractorBeam.active = true;
@@ -327,11 +418,20 @@ function update() {
                 player.y < beamBottom) {
                 boss.tractorBeam.targetPlayer = true;
                 
+                // =============================================
+                // TRASLACIÓN DEL JUGADOR HACIA EL JEFE (HAZ TRACTOR)
+                // =============================================
+                
                 const dx = (boss.x + boss.w/2) - (player.x + player.w/2);
                 const dy = (boss.y + boss.h) - (player.y + player.h/2);
                 
-                player.x += dx * 0.05;
-                player.y += dy * 0.05;
+                const vectorAtraccion = {
+                    dx: dx * 0.05,
+                    dy: dy * 0.05
+                };
+                const nuevaPosJugador = aplicarTraslacion(player, vectorAtraccion.dx, vectorAtraccion.dy);
+                player.x = nuevaPosJugador.x;
+                player.y = nuevaPosJugador.y;
                 
                 if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
                     loseLife();
@@ -351,7 +451,11 @@ function update() {
                 player.y = HEIGHT - 60;
             }
         } else if (boss.state === 'returning') {
-            boss.y -= 1.5;
+            // Traslación vertical hacia arriba
+            const vectorRetorno = { dx: 0, dy: -1.5 }; // T = (0, -1.5)
+            const nuevaPos = aplicarTraslacion(boss, vectorRetorno.dx, vectorRetorno.dy);
+            boss.y = nuevaPos.y;
+            
             if (boss.y <= boss.targetY) {
                 boss.y = boss.targetY;
                 boss.state = 'formation';

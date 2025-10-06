@@ -1,4 +1,22 @@
-// Inicialización del juego
+// =============================================
+// FUNCIONES CLAVE PARA TRASLACIÓN (AGREGAR ESTO)
+// =============================================
+
+function aplicarTraslacion(objeto, dx, dy) {    
+    return {
+        x: objeto.x + dx,
+        y: objeto.y + dy
+    };
+}
+
+function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
+    const nuevaPos = aplicarTraslacion(objeto, dx, dy);
+    nuevaPos.x = Math.max(minX, Math.min(maxX, nuevaPos.x));
+    nuevaPos.y = Math.max(minY, Math.min(maxY, nuevaPos.y));
+    return nuevaPos;
+}
+
+// Inicialización del juego (EL RESTO DEL CÓDIGO SE MANTIENE IGUAL)
 document.addEventListener('DOMContentLoaded', function() {
     createParticles();
     initGame();
@@ -8,27 +26,21 @@ document.addEventListener('DOMContentLoaded', function() {
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
     const particleCount = 25;
-    
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
-        
         const left = Math.random() * 100;
         const delay = Math.random() * 15;
         const duration = 10 + Math.random() * 10;
-        
         particle.style.left = `${left}%`;
         particle.style.animationDelay = `${delay}s`;
         particle.style.animationDuration = `${duration}s`;
-        
         const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         particle.style.backgroundColor = randomColor;
-        
         const size = 1 + Math.random() * 2;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-        
         particlesContainer.appendChild(particle);
     }
 }
@@ -139,23 +151,36 @@ function generarSiguientePieza() {
     dibujarSiguientePieza();
 }
 
-// Nueva pieza actual
+// =============================================
+// NUEVA PIEZA CON TRASLACIÓN INICIAL
+// =============================================
 function nuevaPieza() {
     if (siguientePieza) {
-        piezaActual = {
+        // Posición inicial usando traslación desde fuera del tablero
+        const posicionInicial = {
             x: Math.floor(COLUMNAS / 2) - Math.ceil(siguientePieza.forma[0].length / 2),
-            y: -siguientePieza.forma.length,
+            y: -siguientePieza.forma.length
+        };
+        
+        piezaActual = {
+            x: posicionInicial.x,
+            y: posicionInicial.y,
             forma: siguientePieza.forma,
             id: siguientePieza.id
         };
     }
     generarSiguientePieza();
     
-    // Verificar game over
-    if (hayColision(tablero, piezaActual)) {
-        gameOver();
+    // Verificar game over - más estricto ahora
+    if (hayColision(tablero, piezaActual) || tableroLleno()) {
+        // Pequeño delay para que sea más justo
+        setTimeout(() => {
+            gameOver();
+        }, 100);
+        return;
     }
 }
+
 
 // Dibujar siguiente pieza
 function dibujarSiguientePieza() {
@@ -197,15 +222,36 @@ function rotar(matriz) {
     return matriz[0].map((_, i) => matriz.map(fila => fila[fila.length - 1 - i]));
 }
 
+function tableroLleno() {
+    // Verificar si alguna columna ha llegado hasta la parte superior
+    for (let col = 0; col < COLUMNAS; col++) {
+        if (tablero[0][col] !== 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 // Detectar colisiones
 function hayColision(tablero, pieza) {
     const { x, y, forma } = pieza;
+    
+    // Verificar si el tablero ya está lleno hasta arriba
+    if (tableroLleno() && y < 0) {
+        return true;
+    }
+    
     for (let fila = 0; fila < forma.length; fila++) {
         for (let col = 0; col < forma[fila].length; col++) {
             if (forma[fila][col]) {
                 const posY = y + fila;
                 const posX = x + col;
+                
+                // Si está fuera de los límites verticales u horizontales
                 if (posY >= FILAS || posX < 0 || posX >= COLUMNAS) return true;
+                
+                // Si colisiona con un bloque existente (solo si está dentro del tablero)
                 if (posY >= 0 && tablero[posY][posX]) return true;
             }
         }
@@ -216,16 +262,35 @@ function hayColision(tablero, pieza) {
 // Fijar pieza en el tablero
 function fijarPieza(tablero, pieza) {
     const { x, y, forma, id } = pieza;
+    let piezaFijadaEnParteSuperior = false;
+    
     for (let fila = 0; fila < forma.length; fila++) {
         for (let col = 0; col < forma[fila].length; col++) {
             if (forma[fila][col]) {
                 const posY = y + fila;
                 const posX = x + col;
-                if (posY >= 0) tablero[posY][posX] = id;
+                if (posY >= 0) {
+                    tablero[posY][posX] = id;
+                    // Si la pieza se fija en la fila 0 o 1, marcamos que está en parte superior
+                    if (posY <= 1) {
+                        piezaFijadaEnParteSuperior = true;
+                    }
+                }
             }
         }
     }
+    
+    // Verificar game over después de fijar la pieza
+    if (piezaFijadaEnParteSuperior || tableroLleno()) {
+        // Pequeño delay para que el jugador vea la última pieza antes del game over
+        setTimeout(() => {
+            if (tableroLleno()) {
+                gameOver();
+            }
+        }, 100);
+    }
 }
+
 
 // Limpiar líneas completas
 function limpiarFilas() {
@@ -236,7 +301,7 @@ function limpiarFilas() {
             tablero.splice(fila, 1);
             tablero.unshift(Array(COLUMNAS).fill(0));
             lineasCompletadas++;
-            fila++;
+            fila++; // Revisar la misma fila again ya que se movieron todas hacia abajo
         }
     }
     
@@ -252,20 +317,38 @@ function limpiarFilas() {
         
         // Efecto visual tras línea completada
         crearEfectoLinea(lineasCompletadas);
+        
+        // Verificar si después de limpiar líneas el tablero sigue lleno
+        if (tableroLleno()) {
+            setTimeout(() => {
+                gameOver();
+            }, 300);
+        }
     }
+    
+    // Actualizar UI después de limpiar filas
+    updateUI();
 }
 
-// Mover pieza
+
+// =============================================
+// MOVER PIEZA CON TRASLACIONES GEOMÉTRICAS
+// =============================================
 function moverPieza(dx, dy) {
     if (!gameActive || gamePaused || !piezaActual) return false;
     
     const anteriorX = piezaActual.x;
     const anteriorY = piezaActual.y;
 
-    piezaActual.x += dx;
-    piezaActual.y += dy;
+    // =============================================
+    // APLICAR TRASLACIÓN: P' = P + T
+    // =============================================
+    const nuevaPos = aplicarTraslacion(piezaActual, dx, dy);
+    piezaActual.x = nuevaPos.x;
+    piezaActual.y = nuevaPos.y;
 
     if (hayColision(tablero, piezaActual)) {
+        // Revertir traslación si hay colisión
         piezaActual.x = anteriorX;
         piezaActual.y = anteriorY;
         
@@ -280,6 +363,31 @@ function moverPieza(dx, dy) {
     return true;
 }
 
+// =============================================
+// MOVIMIENTO AUTOMÁTICO (CAÍDA) CON TRASLACIÓN
+// =============================================
+function moverPiezaAbajo() {
+    if (!gameActive || gamePaused || !piezaActual) return false;
+    
+    const anteriorY = piezaActual.y;
+
+    // TRASLACIÓN VERTICAL: P' = P + (0, 1)
+    const nuevaPos = aplicarTraslacion(piezaActual, 0, 1);
+    piezaActual.y = nuevaPos.y;
+
+    if (hayColision(tablero, piezaActual)) {
+        piezaActual.y = anteriorY;
+        fijarPieza(tablero, piezaActual);
+        limpiarFilas();
+        
+        // Solo crear nueva pieza si el juego no terminó
+        if (gameActive) {
+            nuevaPieza();
+        }
+        return false;
+    }
+    return true;
+}
 // Dibujos del juego
 function dibujar() {
     // Fondo
@@ -354,7 +462,9 @@ function dibujarBloque(x, y, color) {
     ctx.shadowBlur = 0;
 }
 
-// Bucle principal del juego
+// =============================================
+// BUCLE PRINCIPAL CON TRASLACIÓN AUTOMÁTICA
+// =============================================
 function gameLoop(time = 0) {
     if (!gameActive) return;
     
@@ -364,7 +474,10 @@ function gameLoop(time = 0) {
     if (!gamePaused) {
         dropCounter += delta;
         if (dropCounter > dropInterval) {
-            moverPieza(0, 1);
+            // =============================================
+            // TRASLACIÓN AUTOMÁTICA HACIA ABAJO
+            // =============================================
+            moverPiezaAbajo();
             dropCounter = 0;
         }
     }
@@ -381,29 +494,62 @@ function updateUI() {
     document.getElementById("lines").textContent = lines;
 }
 
-// Controles del teclado
+// =============================================
+// CONTROLES CON TRASLACIONES GEOMÉTRICAS
+// =============================================
 document.addEventListener('keydown', evento => {
     if (!gameActive || gamePaused || !piezaActual) return;
     
     switch(evento.key) {
         case 'ArrowLeft':
+            // =============================================
+            // TRASLACIÓN IZQUIERDA: P' = P + (-1, 0)
+            // =============================================
             moverPieza(-1, 0);
             break;
         case 'ArrowRight':
+            // =============================================
+            // TRASLACIÓN DERECHA: P' = P + (1, 0)
+            // =============================================
             moverPieza(1, 0);
             break;
         case 'ArrowDown':
+            // =============================================
+            // TRASLACIÓN ABAJO ACELERADA: P' = P + (0, 1)
+            // =============================================
             moverPieza(0, 1);
             break;
         case ' ':
             const formaAnterior = piezaActual.forma;
             piezaActual.forma = rotar(piezaActual.forma);
-            if (hayColision(tablero, piezaActual)) {
+            if (hayColision(tablero, piezaActual) || tableroLleno()) {
                 piezaActual.forma = formaAnterior;
             }
             break;
     }
 });
+
+function mostrarAdvertenciaTableroLleno() {
+    const mensaje = document.createElement('div');
+    mensaje.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 0, 0, 0.8);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-family: Arial;
+        z-index: 1000;
+    `;
+    mensaje.textContent = '¡TABLERO LLENO!';
+    document.querySelector('.game-content').appendChild(mensaje);
+    
+    setTimeout(() => {
+        mensaje.remove();
+    }, 1000);
+}
 
 // Pausar/reanudar juego
 function togglePause() {

@@ -4,6 +4,42 @@ document.addEventListener('DOMContentLoaded', function() {
     initGame();
 });
 
+// =============================================
+// FUNCIONES CLAVE PARA TRASLACIÓN (AGREGAR ESTO)
+// =============================================
+
+function aplicarTraslacion(objeto, dx, dy) {    
+    return {
+        x: objeto.x + dx,
+        y: objeto.y + dy
+    };
+}
+
+function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
+    const nuevaPos = aplicarTraslacion(objeto, dx, dy);
+    nuevaPos.x = Math.max(minX, Math.min(maxX, nuevaPos.x));
+    nuevaPos.y = Math.max(minY, Math.min(maxY, nuevaPos.y));
+    return nuevaPos;
+}
+
+function aplicarTraslacionConAngulo(objeto, velocidad, angulo) {
+    const dx = Math.cos(angulo) * velocidad;
+    const dy = Math.sin(angulo) * velocidad;
+    return aplicarTraslacion(objeto, dx, dy);
+}
+
+function aplicarTraslacionConPantallaEnvolvente(objeto, dx, dy, anchoPantalla, altoPantalla) {
+    let nuevaPos = aplicarTraslacion(objeto, dx, dy);
+    
+    // Pantalla envolvente
+    if (nuevaPos.x < 0) nuevaPos.x = anchoPantalla;
+    if (nuevaPos.x > anchoPantalla) nuevaPos.x = 0;
+    if (nuevaPos.y < 0) nuevaPos.y = altoPantalla;
+    if (nuevaPos.y > altoPantalla) nuevaPos.y = 0;
+    
+    return nuevaPos;
+}
+
 // Sistema de partículas
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
@@ -247,15 +283,26 @@ function drawBullets() {
     ctx.shadowBlur = 0;
 }
 
-// Mover nave
+// =============================================
+// MOVER NAVE CON TRASLACIONES GEOMÉTRICAS
+// =============================================
 function moveShip() {
     if (keys["ArrowLeft"]) ship.angle -= 0.07;
     if (keys["ArrowRight"]) ship.angle += 0.07;
     
     ship.thrust = false;
     if (keys["ArrowUp"]) {
-        ship.vx += Math.cos(ship.angle) * 0.1;
-        ship.vy += Math.sin(ship.angle) * 0.1;
+        // =============================================
+        // TRASLACIÓN CON ACELERACIÓN: P' = P + (aceleración * cos(θ), aceleración * sin(θ))
+        // =============================================
+        const aceleracion = 0.1;
+        const vectorAceleracion = {
+            dx: Math.cos(ship.angle) * aceleracion,
+            dy: Math.sin(ship.angle) * aceleracion
+        };
+        
+        ship.vx += vectorAceleracion.dx;
+        ship.vy += vectorAceleracion.dy;
         ship.thrust = true;
     }
 
@@ -263,35 +310,51 @@ function moveShip() {
     ship.vx *= 0.98;
     ship.vy *= 0.98;
 
-    ship.x += ship.vx;
-    ship.y += ship.vy;
-
-    // Pantalla envolvente
-    if (ship.x < 0) ship.x = canvas.width;
-    if (ship.x > canvas.width) ship.x = 0;
-    if (ship.y < 0) ship.y = canvas.height;
-    if (ship.y > canvas.height) ship.y = 0;
+    // =============================================
+    // TRASLACIÓN CON PANTALLA ENVOLVENTE: P' = P + (vx, vy) con wraparound
+    // =============================================
+    const nuevaPos = aplicarTraslacionConPantallaEnvolvente(
+        ship, 
+        ship.vx, 
+        ship.vy, 
+        canvas.width, 
+        canvas.height
+    );
+    ship.x = nuevaPos.x;
+    ship.y = nuevaPos.y;
 }
 
-// Mover asteroides
+// =============================================
+// MOVER ASTEROIDES CON TRASLACIONES GEOMÉTRICAS
+// =============================================
 function moveAsteroids() {
     asteroids.forEach(asteroid => {
-        asteroid.x += asteroid.vx;
-        asteroid.y += asteroid.vy;
-        
-        // Pantalla envolvente
-        if (asteroid.x < 0) asteroid.x = canvas.width;
-        if (asteroid.x > canvas.width) asteroid.x = 0;
-        if (asteroid.y < 0) asteroid.y = canvas.height;
-        if (asteroid.y > canvas.height) asteroid.y = 0;
+        // =============================================
+        // TRASLACIÓN LINEAL CON PANTALLA ENVOLVENTE
+        // =============================================
+        const nuevaPos = aplicarTraslacionConPantallaEnvolvente(
+            asteroid,
+            asteroid.vx,
+            asteroid.vy,
+            canvas.width,
+            canvas.height
+        );
+        asteroid.x = nuevaPos.x;
+        asteroid.y = nuevaPos.y;
     });
 }
 
-// Mover balas
+// =============================================
+// MOVER BALAS CON TRASLACIONES GEOMÉTRICAS
+// =============================================
 function moveBullets() {
     bullets.forEach(bullet => {
-        bullet.x += bullet.vx;
-        bullet.y += bullet.vy;
+        // =============================================
+        // TRASLACIÓN LINEAL DE BALAS: P' = P + (vx, vy)
+        // =============================================
+        const nuevaPos = aplicarTraslacion(bullet, bullet.vx, bullet.vy);
+        bullet.x = nuevaPos.x;
+        bullet.y = nuevaPos.y;
     });
     
     // Eliminar balas fuera de pantalla
@@ -300,31 +363,44 @@ function moveBullets() {
     );
 }
 
-// Disparar
+// =============================================
+// DISPARAR CON TRASLACIÓN INICIAL
+// =============================================
 document.addEventListener("keydown", e => {
     if (e.code === "Space" && gameActive && !gamePaused) {
+        // =============================================
+        // POSICIÓN INICIAL DE BALA: P' = P_nave + (20 * cos(θ), 20 * sin(θ))
+        // =============================================
+        const posicionInicial = aplicarTraslacionConAngulo(
+            ship,
+            20, // distancia desde la nave
+            ship.angle
+        );
+        
         bullets.push({
-            x: ship.x + Math.cos(ship.angle) * 20,
-            y: ship.y + Math.sin(ship.angle) * 20,
+            x: posicionInicial.x,
+            y: posicionInicial.y,
             vx: Math.cos(ship.angle) * 6,
             vy: Math.sin(ship.angle) * 6
         });
     }
 });
 
-// Dividir asteroide
 function splitAsteroid(asteroid) {
     if (asteroid.radius > 15) {
         for (let i = 0; i < 2; i++) {
             const angle = Math.random() * Math.PI * 2;
-            asteroids.push({
+            const velocidadFragmento = 1.5 + Math.random();
+            const fragmento = {
                 x: asteroid.x,
                 y: asteroid.y,
                 radius: asteroid.radius / 2,
-                vx: Math.cos(angle) * (1.5 + Math.random()),
-                vy: Math.sin(angle) * (1.5 + Math.random()),
+                vx: Math.cos(angle) * velocidadFragmento,
+                vy: Math.sin(angle) * velocidadFragmento,
                 vertices: generateAsteroidVertices()
-            });
+            };
+            
+            asteroids.push(fragmento);
         }
     }
 }
