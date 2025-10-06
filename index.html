@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade Retro</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Efecto de línea de escaneo -->
+  <div class="scan-line"></div>
+  
+  <!-- Efecto de partículas -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand blink" href="#">ARCADE RETRO</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#juegos">Juegos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Clasificaciones</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Acerca de</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Contacto</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero-section text-center p-5">
+    <div class="container">
+      <h1 class="hero-title display-4">¡BIENVENIDO A ARCADE RETRO!</h1>
+      <p class="hero-subtitle lead">Revive la nostalgia de los clásicos arcade. Elige tu juego favorito y empieza a divertirte</p>
+      <a href="#juegos" class="btn btn-neon btn-neon-primary btn-lg">VER JUEGOS</a>
+    </div>
+  </div>
+
+  <!-- Sección de juegos -->
+  <div id="juegos" class="container my-5">
+    <h2 class="text-center mb-5 section-title">JUEGOS CLÁSICOS</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      
+      <!-- Juego 1 -->
+      <div class="col">
+        <div class="card h-100 game-card">
+          <img src="img/pong.jpg" class="card-img-top" alt="Pong">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">PONG</h5>
+            <p class="card-text flex-grow-1">El clásico juego de tenis en 2D que inició la revolución arcade.</p>
+            <a href="juegos/pong/index.html" class="btn btn-game mt-auto">Jugar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Juego 2 -->
+      <div class="col">
+        <div class="card h-100 game-card">
+          <img src="img/tetris.png" class="card-img-top" alt="Tetris">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">TETRIS</h5>
+            <p class="card-text flex-grow-1">Acomoda las piezas que caen y completa líneas para ganar puntos.</p>
+            <a href="juegos/tetris/index.html" class="btn btn-game mt-auto">Jugar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Juego 3 -->
+      <div class="col">
+        <div class="card h-100 game-card">
+          <img src="img/galaga.png" class="card-img-top" alt="Galaga">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">GALAGA</h5>
+            <p class="card-text flex-grow-1">Dispara a las naves alienígenas que se mueven en formaciones.</p>
+            <a href="juegos/galaga/index.html" class="btn btn-game mt-auto">Jugar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Juego 4 -->
+      <div class="col">
+        <div class="card h-100 game-card">
+          <img src="img/spaceInvaders.jpg" class="card-img-top" alt="spaceInvaders">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">SPACE INVADERS</h5>
+            <p class="card-text flex-grow-1">Defiende la Tierra de la invasión alienígena con tu cañón láser.</p>
+            <a href="juegos/space-invaders/index.html" class="btn btn-game mt-auto">Jugar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Juego 5 -->
+      <div class="col">
+        <div class="card h-100 game-card">
+          <img src="img/asteroids.png" class="card-img-top" alt="asteroids">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">ASTEROIDS</h5>
+            <p class="card-text flex-grow-1">Destruye asteroides y ovnis mientras evitas colisionar con ellos.</p>
+            <a href="juegos/asteroids/index.html" class="btn btn-game mt-auto">Jugar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Juego 6 -->
+      <div class="col">
+        <div class="card h-100 game-card">
+          <img src="img/breakout.jpg" class="card-img-top" alt="breakout">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">BREAKOUT</h5>
+            <p class="card-text flex-grow-1">Rompe todos los bloques con una pelota que rebota en tu paleta.</p>
+            <a href="juegos/breakout/index.html" class="btn btn-game mt-auto">Jugar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-arcade text-center">
+    <p class="mb-0">© 2025 ARCADE RETRO - CREADO CON PASIÓN POR LOS JUEGOS CLÁSICOS</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

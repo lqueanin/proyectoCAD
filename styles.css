@@ -1,0 +1,335 @@
+:root {
+  --neon-pink: #ff00ff;
+  --neon-blue: #00ffff;
+  --neon-green: #39ff14;
+  --neon-yellow: #ffff00;
+  --neon-purple: #bf00ff;
+  --neon-orange: #ff5e00;
+  --dark-bg: #0a0a1f;
+  --darker-bg: #050510;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: white;
+  font-family: 'Courier New', monospace;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 0, 255, 0.05) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 20%);
+}
+
+/* Navbar con efecto neón */
+.navbar {
+  background-color: var(--darker-bg) !important;
+  border-bottom: 2px solid var(--neon-pink);
+  box-shadow: 0 0 10px var(--neon-pink);
+}
+
+.navbar-brand {
+  color: var(--neon-blue) !important;
+  font-weight: bold;
+  text-shadow: 0 0 5px var(--neon-blue), 0 0 10px var(--neon-blue);
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+}
+
+.nav-link {
+  color: var(--neon-green) !important;
+  text-shadow: 0 0 3px var(--neon-green);
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--neon-yellow) !important;
+  text-shadow: 0 0 8px var(--neon-yellow);
+}
+
+/* Hero section mejorada */
+.hero-section {
+  background: linear-gradient(135deg, var(--darker-bg) 0%, #1a1a3a 100%);
+  border-bottom: 3px solid var(--neon-green);
+  box-shadow: 0 0 15px var(--neon-green);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(57, 255, 20, 0.1) 2px,
+      rgba(57, 255, 20, 0.1) 4px
+    );
+  pointer-events: none;
+}
+
+.hero-title {
+  color: var(--neon-yellow);
+  text-shadow: 0 0 10px var(--neon-yellow);
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+  color: var(--neon-blue);
+  text-shadow: 0 0 5px var(--neon-blue);
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+}
+
+/* Títulos de sección */
+.section-title {
+  color: var(--neon-green);
+  text-shadow: 0 0 10px var(--neon-green);
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+/* Botones con efecto neón */
+.btn-neon {
+  background-color: transparent;
+  border: 2px solid;
+  border-radius: 0;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-neon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: all 0.5s ease;
+  z-index: -1;
+}
+
+.btn-neon:hover::before {
+  left: 100%;
+}
+
+.btn-neon-primary {
+  color: var(--neon-blue);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 5px var(--neon-blue), inset 0 0 5px var(--neon-blue);
+}
+
+.btn-neon-primary:hover {
+  background-color: var(--neon-blue);
+  color: var(--darker-bg);
+  box-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+}
+
+/* Tarjetas de juegos mejoradas */
+.game-card {
+  background: linear-gradient(145deg, #1a1a3a, #0f0f2a);
+  border: 2px solid;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue), var(--neon-green), var(--neon-yellow));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.game-card:hover::before {
+  transform: scaleX(1);
+}
+
+.game-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.game-card:nth-child(1) { border-color: var(--neon-pink); }
+.game-card:nth-child(2) { border-color: var(--neon-blue); }
+.game-card:nth-child(3) { border-color: var(--neon-green); }
+.game-card:nth-child(4) { border-color: var(--neon-yellow); }
+.game-card:nth-child(5) { border-color: var(--neon-purple); }
+.game-card:nth-child(6) { border-color: var(--neon-orange); }
+
+.game-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-card .card-title {
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.game-card .card-text {
+  color: #cccccc;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Botones de juego */
+.btn-game {
+  background-color: transparent;
+  border: 1px solid;
+  border-radius: 0;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.btn-game:hover {
+  transform: scale(1.05);
+}
+
+.game-card:nth-child(1) .btn-game { border-color: var(--neon-pink); }
+.game-card:nth-child(2) .btn-game { border-color: var(--neon-blue); }
+.game-card:nth-child(3) .btn-game { border-color: var(--neon-green); }
+.game-card:nth-child(4) .btn-game { border-color: var(--neon-yellow); }
+.game-card:nth-child(5) .btn-game { border-color: var(--neon-purple); }
+.game-card:nth-child(6) .btn-game { border-color: var(--neon-orange); }
+
+.game-card:nth-child(1) .btn-game:hover { 
+  background-color: var(--neon-pink); 
+  box-shadow: 0 0 10px var(--neon-pink);
+}
+.game-card:nth-child(2) .btn-game:hover { 
+  background-color: var(--neon-blue); 
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+.game-card:nth-child(3) .btn-game:hover { 
+  background-color: var(--neon-green); 
+  box-shadow: 0 0 10px var(--neon-green);
+}
+.game-card:nth-child(4) .btn-game:hover { 
+  background-color: var(--neon-yellow); 
+  box-shadow: 0 0 10px var(--neon-yellow);
+  color: #333;
+}
+.game-card:nth-child(5) .btn-game:hover { 
+  background-color: var(--neon-purple); 
+  box-shadow: 0 0 10px var(--neon-purple);
+}
+.game-card:nth-child(6) .btn-game:hover { 
+  background-color: var(--neon-orange); 
+  box-shadow: 0 0 10px var(--neon-orange);
+}
+
+/* Footer mejorado */
+.footer-arcade {
+  background-color: var(--darker-bg);
+  border-top: 2px solid var(--neon-purple);
+  box-shadow: 0 0 10px var(--neon-purple);
+  color: var(--neon-blue);
+  text-shadow: 0 0 5px var(--neon-blue);
+  padding: 1.5rem 0;
+  margin-top: 3rem;
+}
+
+/* Efectos de texto parpadeante */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.blink {
+  animation: blink 2s infinite;
+}
+
+/* Efecto de escaneo */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.5), transparent);
+  animation: scan 3s linear infinite;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Efecto de partículas */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background-color: var(--neon-blue);
+  border-radius: 50%;
+  animation: float 15s infinite linear;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(20px);
+    opacity: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.5rem;
+  }
+}
