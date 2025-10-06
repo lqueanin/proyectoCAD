@@ -93,10 +93,9 @@ const difficultyColors = {
     'EXTREMO': { bg: '#3a1c1c', particle: '#ff5555', accent: '#ffff00' }
 };
 
-// Control de teclado - PREVENIR SCROLL CON FLECHAS
+// Control de teclado
 let keys = {};
 document.addEventListener("keydown", e => {
-    // Prevenir comportamiento por defecto de las flechas y teclas W/S
     if (['ArrowUp', 'ArrowDown', 'w', 'W', 's', 'S'].includes(e.key)) {
         e.preventDefault();
     }
@@ -128,7 +127,7 @@ function initGame() {
     resetBall();
     initParticles();
     updateUI();
-    // Configurar botón de inicio - MOSTRAR SOLO AL INICIO
+    // Configurar botón de inicio
     const startBtn = document.getElementById("startBtn");
     const startScreen = document.getElementById("startScreen");
     
@@ -219,7 +218,7 @@ function update() {
         paddleFlash(rightPaddle);
     }
 
-    // Puntos y reset
+    // Puntos para jugadores
     if (ball.x < 0) {
         rightScore++;
         showVictoryMessage("PUNTO PARA\nJUGADOR 2!", "#ff00ff");
@@ -233,7 +232,7 @@ function update() {
     }
 }
 
-// Dibujar elementos del juego
+// Dibujos del juego
 function draw() {
     // Fondo
     const bgColor = difficultyColors[currentDifficulty].bg;
@@ -260,7 +259,7 @@ function draw() {
     // Pelota con efectos
     drawBall();
 
-    // Efectos visuales adicionales
+    // Estela de velocidad
     drawSpeedTrail();
 }
 
@@ -428,7 +427,7 @@ function resetBall() {
     updateUI();
 }
 
-// Verificar fin del juego - VERSIÓN MEJORADA
+// Verificar fin del juego
 function checkGameEnd() {
     if (leftScore >= 5 || rightScore >= 5) {
         gameActive = false;
@@ -454,7 +453,7 @@ function showGameOverScreen(winner, color) {
     
     gameOverScreen.style.display = "flex";
     
-    // Botón jugar de nuevo
+    // Botón para jugar de nuevo
     playAgainBtn.onclick = function() {
         leftScore = 0;
         rightScore = 0;
@@ -465,7 +464,7 @@ function showGameOverScreen(winner, color) {
         gameLoop();
     };
     
-    // Botón volver al inicio
+    // Botón para volver al inicio
     mainMenuBtn.onclick = function() {
         window.location.href = "../../index.html";
     };

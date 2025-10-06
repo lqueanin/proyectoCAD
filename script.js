@@ -64,7 +64,6 @@ function addGameCardListeners() {
 
 // Función para simular sonidos de hover
 function playHoverSound(index) {
-  // En una implementación real, aquí cargarías y reproducirías sonidos
   console.log(`Sonido hover para juego ${index + 1}`);
 }
 
@@ -145,9 +144,9 @@ function simulateGameLoad(gameName, gameUrl) {
   console.log(`Cargando juego: ${gameName}`);
   showLoadingScreen(gameName);
   
-  // Después de 2 segundos, redirige a la URL del juego
+  // Redirige a la URL del juego después de 2 segundos
   setTimeout(() => {
-    window.location.href = gameUrl; // ← ESTA ES LA LÍNEA CLAVE
+    window.location.href = gameUrl;
   }, 2000);
 }
 
@@ -194,7 +193,7 @@ function showLoadingScreen(gameName) {
   
   document.body.appendChild(loadingScreen);
   
-  // Simular tiempo de carga y luego remover
+  // Simulacion del tiempo de carga
   setTimeout(() => {
     loadingScreen.remove();
     console.log(`Juego ${gameName} cargado`);
@@ -202,15 +201,15 @@ function showLoadingScreen(gameName) {
 }
 
 // Añadir event listeners a los botones de juego
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const gameButtons = document.querySelectorAll('.btn-game');
-  
+
   gameButtons.forEach(button => {
-  button.addEventListener('click', function(e) {
-    e.preventDefault();
-    const gameUrl = this.getAttribute('href'); // Obtiene la URL del enlace
-    const gameName = this.closest('.game-card').querySelector('.card-title').textContent;
-    simulateGameLoad(gameName, gameUrl);
-  });
+    button.addEventListener('click', function (e) {
+      e.preventDefault();
+      const gameUrl = this.getAttribute('href');
+      const gameName = this.closest('.game-card').querySelector('.card-title').textContent;
+      simulateGameLoad(gameName, gameUrl);
+    });
   });
 });

@@ -18,7 +18,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Navbar */
 .navbar {
   background-color: var(--darker-bg) !important;
   border-bottom: 2px solid var(--neon-blue);
@@ -46,7 +45,6 @@ body {
   text-shadow: 0 0 8px var(--neon-yellow);
 }
 
-/* Efectos de texto parpadeante */
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -56,7 +54,6 @@ body {
   animation: blink 2s infinite;
 }
 
-/* Efecto de escaneo */
 @keyframes scan {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100%); }

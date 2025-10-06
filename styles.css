@@ -45,7 +45,6 @@ body {
   text-shadow: 0 0 8px var(--neon-yellow);
 }
 
-/* Hero section mejorada */
 .hero-section {
   background: linear-gradient(135deg, var(--darker-bg) 0%, #1a1a3a 100%);
   border-bottom: 3px solid var(--neon-green);
@@ -87,7 +86,6 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Títulos de sección */
 .section-title {
   color: var(--neon-green);
   text-shadow: 0 0 10px var(--neon-green);
@@ -137,7 +135,7 @@ body {
   box-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
 }
 
-/* Tarjetas de juegos mejoradas */
+/* Tarjetas de juegos */
 .game-card {
   background: linear-gradient(145deg, #1a1a3a, #0f0f2a);
   border: 2px solid;
@@ -194,7 +192,6 @@ body {
   line-height: 1.4;
 }
 
-/* Botones de juego */
 .btn-game {
   background-color: transparent;
   border: 1px solid;
@@ -243,7 +240,6 @@ body {
   box-shadow: 0 0 10px var(--neon-orange);
 }
 
-/* Footer mejorado */
 .footer-arcade {
   background-color: var(--darker-bg);
   border-top: 2px solid var(--neon-purple);

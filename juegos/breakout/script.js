@@ -58,7 +58,7 @@ let gamePaused = false;
 
 // Inicializar juego
 function initGame() {
-    // Configurar botón de inicio
+    // Botón de inicio
     const startBtn = document.getElementById("startBtn");
     const startScreen = document.getElementById("startScreen");
     const gameContent = document.querySelector(".game-content");
@@ -69,7 +69,7 @@ function initGame() {
         startGame();
     });
 
-    // Configurar botones de control
+    // Botones de control
     document.getElementById("pauseBtn").addEventListener("click", togglePause);
     document.getElementById("restartBtn").addEventListener("click", restartGame);
     document.getElementById("resumeBtn").addEventListener("click", togglePause);
@@ -144,7 +144,7 @@ function initBlocks() {
                 h: 22,
                 color: colors[row],
                 alive: true,
-                hitPoints: row + 1 // Bloques superiores son más resistentes
+                hitPoints: row + 1 // Bloques más resistentes
             });
         }
     }
@@ -443,7 +443,7 @@ function nextLevel() {
     
     // Aumentar dificultad
     ball.baseSpeed += 0.5;
-    paddle.w = Math.max(40, paddle.w - 5); // Paleta más pequeña
+    paddle.w = Math.max(40, paddle.w - 5); // Hacer la paleta más pequeña
     
     initBlocks();
     resetBall();

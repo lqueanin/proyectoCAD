@@ -18,7 +18,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Navbar */
 .navbar {
   background-color: var(--darker-bg) !important;
   border-bottom: 2px solid var(--neon-green);
@@ -327,7 +326,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* Layout del juego - TETRIS MÁS GRANDE */
+/* Layout del juego */
 .game-layout {
     display: grid;
     grid-template-columns: auto 300px;
@@ -347,16 +346,16 @@ body {
     border-radius: 5px;
     box-shadow: 0 0 20px var(--neon-blue), inset 0 0 20px rgba(0, 255, 255, 0.1);
     image-rendering: pixelated;
-    width: 400px;  /* Duplicamos el ancho */
-    height: 800px; /* Duplicamos la altura */
+    width: 400px; 
+    height: 800px;
 }
 
-/* Sidebar del juego - MEJORADO */
+/* Sidebar del juego */
 .game-sidebar {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    min-height: 800px; /* Para que coincida con la altura del canvas */
+    min-height: 800px;
     justify-content: flex-start;
 }
 
@@ -373,20 +372,20 @@ body {
 }
 
 .score-display {
-    font-size: 3rem; /* Un poco más grande */
+    font-size: 3rem;
     font-weight: bold;
     color: var(--neon-yellow);
     text-shadow: 0 0 10px var(--neon-yellow);
 }
 
 .level-display, .lines-display {
-    font-size: 2.5rem; /* Un poco más grande */
+    font-size: 2.5rem;
     font-weight: bold;
     color: var(--neon-green);
     text-shadow: 0 0 10px var(--neon-green);
 }
 
-/* Siguiente pieza - MEJORADO */
+/* Siguiente pieza */
 .next-piece {
     background: rgba(0, 0, 0, 0.3);
     padding: 1.5rem;

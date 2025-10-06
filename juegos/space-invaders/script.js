@@ -59,7 +59,7 @@ let gamePaused = false;
 
 // Inicializar juego
 function initGame() {
-    // Configurar botón de inicio
+    // Botón de inicio
     const startBtn = document.getElementById("startBtn");
     const startScreen = document.getElementById("startScreen");
     const gameContent = document.querySelector(".game-content");
@@ -70,7 +70,7 @@ function initGame() {
         startGame();
     });
 
-    // Configurar botones de control
+    // Botones de control
     document.getElementById("pauseBtn").addEventListener("click", togglePause);
     document.getElementById("restartBtn").addEventListener("click", restartGame);
     document.getElementById("resumeBtn").addEventListener("click", togglePause);
@@ -214,7 +214,7 @@ function update() {
         });
     }
     
-    // Detección de colisiones bala-invasor
+    // Detección de colisiones de la bala del invasor
     bullets.forEach((bullet, bulletIndex) => {
         invaders.forEach((invader, invaderIndex) => {
             if (invader.alive &&
@@ -263,7 +263,7 @@ function update() {
     }
 }
 
-// Dibujar juego
+// Dibujos del juego
 function draw() {
     // Fondo del espacio
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);

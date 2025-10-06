@@ -39,13 +39,13 @@ const ctx = canvas.getContext("2d");
 const nextCanvas = document.getElementById("nextPieceCanvas");
 const nextCtx = nextCanvas.getContext("2d");
 
-// Configuración - TETRIS MÁS GRANDE
+// Configuración del tablero
 const COLUMNAS = 10;
 const FILAS = 20;
-const BLOQUE = 40; // Duplicamos el tamaño de los bloques
+const BLOQUE = 40;
 
-canvas.width = COLUMNAS * BLOQUE;  // 400px
-canvas.height = FILAS * BLOQUE;    // 800px
+canvas.width = COLUMNAS * BLOQUE;  
+canvas.height = FILAS * BLOQUE;  
 
 // Estado del juego
 let tablero = Array.from({ length: FILAS }, () => Array(COLUMNAS).fill(0));
@@ -58,16 +58,16 @@ let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
 
-// Colores de las piezas (mejorados con neones)
+// Colores de las piezas
 const colores = [
     '#000000', // Fondo
-    '#00ffff', // I - Cyan neón
-    '#0000ff', // J - Azul
-    '#ff8000', // L - Naranja
-    '#ffff00', // O - Amarillo neón
-    '#00ff00', // S - Verde neón
-    '#bf00ff', // T - Púrpura neón
-    '#ff0000'  // Z - Rojo
+    '#00ffff', // I
+    '#0000ff', // J 
+    '#ff8000', // L 
+    '#ffff00', // O 
+    '#00ff00', // S 
+    '#bf00ff', // T 
+    '#ff0000'  // Z 
 ];
 
 // Definición de piezas
@@ -87,7 +87,7 @@ let siguientePieza = null;
 
 // Inicializar juego
 function initGame() {
-    // Configurar botón de inicio
+    // Botón de inicio
     const startBtn = document.getElementById("startBtn");
     const startScreen = document.getElementById("startScreen");
     const gameContent = document.querySelector(".game-content");
@@ -98,7 +98,7 @@ function initGame() {
         startGame();
     });
 
-    // Configurar botones de control
+    // Botones de control
     document.getElementById("pauseBtn").addEventListener("click", togglePause);
     document.getElementById("restartBtn").addEventListener("click", restartGame);
     document.getElementById("resumeBtn").addEventListener("click", togglePause);
@@ -158,7 +158,6 @@ function nuevaPieza() {
 }
 
 // Dibujar siguiente pieza
-// Dibujar siguiente pieza - ACTUALIZADA para bloques más grandes
 function dibujarSiguientePieza() {
     nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
     
@@ -168,7 +167,7 @@ function dibujarSiguientePieza() {
     const color = colores[siguientePieza.id];
     
     // Centrar la pieza con bloques más grandes
-    const blockSize = 20; // Tamaño para la vista previa
+    const blockSize = 20; // Vista previa
     const offsetX = (nextCanvas.width - forma[0].length * blockSize) / 2;
     const offsetY = (nextCanvas.height - forma.length * blockSize) / 2;
     
@@ -193,7 +192,7 @@ function dibujarSiguientePieza() {
     }
 }
 
-// Rotar pieza
+// Rotacion de las piezas
 function rotar(matriz) {
     return matriz[0].map((_, i) => matriz.map(fila => fila[fila.length - 1 - i]));
 }
@@ -237,7 +236,7 @@ function limpiarFilas() {
             tablero.splice(fila, 1);
             tablero.unshift(Array(COLUMNAS).fill(0));
             lineasCompletadas++;
-            fila++; // Revisar la misma posición otra vez
+            fila++;
         }
     }
     
@@ -251,7 +250,7 @@ function limpiarFilas() {
         level = Math.floor(lines / 10) + 1;
         dropInterval = Math.max(100, 1000 - (level - 1) * 100);
         
-        // Efecto visual de línea completada
+        // Efecto visual tras línea completada
         crearEfectoLinea(lineasCompletadas);
     }
 }
@@ -281,7 +280,7 @@ function moverPieza(dx, dy) {
     return true;
 }
 
-// Dibujar juego
+// Dibujos del juego
 function dibujar() {
     // Fondo
     ctx.fillStyle = '#111127';
@@ -450,6 +449,5 @@ function gameOver() {
 
 // Efecto visual al completar línea
 function crearEfectoLinea(lineasCompletadas) {
-    // Podrías agregar aquí efectos de partículas o animaciones
     console.log(`¡${lineasCompletadas} línea(s) completada(s)!`);
 }

@@ -18,7 +18,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Navbar */
 .navbar {
   background-color: var(--darker-bg) !important;
   border-bottom: 2px solid var(--neon-blue);
@@ -327,7 +326,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* UI Overlay */
+/* Interfaz Overlay */
 .game-ui-overlay {
   display: flex;
   justify-content: center;

@@ -65,7 +65,7 @@ document.addEventListener("keyup", e => keys[e.key] = false);
 
 // Inicializar juego
 function initGame() {
-    // Configurar botón de inicio
+    // Botón de inicio
     const startBtn = document.getElementById("startBtn");
     const startScreen = document.getElementById("startScreen");
     const gameContent = document.querySelector(".game-content");
@@ -76,7 +76,7 @@ function initGame() {
         startGame();
     });
 
-    // Configurar botones de control
+    // Botones de control
     document.getElementById("pauseBtn").addEventListener("click", togglePause);
     document.getElementById("restartBtn").addEventListener("click", restartGame);
     document.getElementById("resumeBtn").addEventListener("click", togglePause);
@@ -155,7 +155,7 @@ function generateAsteroidVertices() {
     
     for (let i = 0; i < numVertices; i++) {
         const angle = (i / numVertices) * Math.PI * 2;
-        const distance = 0.7 + Math.random() * 0.3; // Variación de radio
+        const distance = 0.7 + Math.random() * 0.3;
         vertices.push({
             angle,
             distance
@@ -331,7 +331,7 @@ function splitAsteroid(asteroid) {
 
 // Detectar colisiones
 function detectCollisions() {
-    // Balas - Asteroides
+    // Balas -> Asteroides
     for (let ai = asteroids.length - 1; ai >= 0; ai--) {
         for (let bi = bullets.length - 1; bi >= 0; bi--) {
             const asteroid = asteroids[ai];
@@ -353,7 +353,7 @@ function detectCollisions() {
         }
     }
 
-    // Nave - Asteroides
+    // Nave -> Asteroides
     if (!gameState.gameOver) {
         asteroids.forEach(asteroid => {
             const dx = asteroid.x - ship.x;

@@ -18,7 +18,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Navbar */
 .navbar {
   background-color: var(--darker-bg) !important;
   border-bottom: 2px solid var(--neon-blue);

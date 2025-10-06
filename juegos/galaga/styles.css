@@ -18,7 +18,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Navbar */
 .navbar {
   background-color: var(--darker-bg) !important;
   border-bottom: 2px solid var(--neon-blue);
@@ -572,7 +571,7 @@ body {
   }
 }
 
-/* UI Overlay - Fuera del canvas */
+/* Interfaz - Fuera del canvas */
 .game-ui-overlay {
     position: absolute;
     top: 10px;
@@ -620,10 +619,10 @@ body {
     text-align: center;
 }
 
-/* Ajustar el game-area para el nuevo UI */
+/* Ajustar area para la nueva interfaz */
 .game-area {
     position: relative;
     display: flex;
     justify-content: center;
-    padding-top: 100px; /* Espacio para la UI */
+    padding-top: 100px;
 }
