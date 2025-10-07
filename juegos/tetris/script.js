@@ -1,5 +1,5 @@
 // =============================================
-// FUNCIONES CLAVE PARA TRASLACIÓN (AGREGAR ESTO)
+// FUNCIONES CLAVE PARA TRASLACIÓN
 // =============================================
 
 function aplicarTraslacion(objeto, dx, dy) {    
