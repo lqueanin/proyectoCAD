@@ -16,7 +16,7 @@ function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
     return nuevaPos;
 }
 
-// Inicialización del juego (EL RESTO DEL CÓDIGO SE MANTIENE IGUAL)
+// Inicialización del juego
 document.addEventListener('DOMContentLoaded', function() {
     crearParticulas();
     inicializarJuego();
