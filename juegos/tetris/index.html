@@ -8,12 +8,8 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Efecto de línea de escaneo -->
   <div class="scan-line"></div>
-  
-  <!-- Efecto de partículas -->
   <div class="particles" id="particles"></div>
-
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
       <a class="navbar-brand blink" href="../../index.html">ARCADE RETRO</a>
@@ -35,19 +31,17 @@
       </div>
     </div>
   </nav>
-
   <div class="container my-4">
     <div class="game-header text-center mb-4">
       <h1 class="game-title">TETRIS ARCADE</h1>
       <p class="game-subtitle">Acomoda las piezas y completa líneas</p>
     </div>
-
     <div class="game-container">
-      <div id="startScreen" class="start-screen">
+      <div id="pantallaInicio" class="start-screen">
         <div class="start-content">
           <h2 class="start-title">¡TETRIS ARCADE!</h2>
           <p class="start-subtitle">¿Listo para el desafío?</p>
-          <button id="startBtn" class="btn btn-neon btn-neon-start">COMENZAR JUEGO</button>
+          <button id="botonInicio" class="btn btn-neon btn-neon-start">COMENZAR JUEGO</button>
           <div class="start-controls">
             <h3>CONTROLES</h3>
             <div class="control-grid">
@@ -68,76 +62,67 @@
           </div>
         </div>
       </div>
-
-      <div class="game-content" style="display: none;">
+      <div class="contenidoJuego" style="display: none;">
         <div class="game-layout">
           <div class="game-area">
-            <canvas id="gameCanvas" width="200" height="400"></canvas>
+            <canvas id="lienzoJuego" width="200" height="400"></canvas>
           </div>
-          
           <div class="game-sidebar">
             <div class="game-info">
               <div class="info-card">
                 <h3>PUNTUACIÓN</h3>
-                <div id="score" class="score-display">0</div>
+                <div id="puntuacion" class="score-display">0</div>
               </div>
-              
               <div class="info-card">
                 <h3>NIVEL</h3>
-                <div id="level" class="level-display">1</div>
+                <div id="nivel" class="level-display">1</div>
               </div>
-              
               <div class="info-card">
                 <h3>LÍNEAS</h3>
-                <div id="lines" class="lines-display">0</div>
+                <div id="lineas" class="lines-display">0</div>
               </div>
             </div>
-
             <div class="next-piece">
               <h3>SIGUIENTE</h3>
-              <canvas id="nextPieceCanvas" width="120" height="120"></canvas>
+              <canvas id="lienzoSiguientePieza" width="120" height="120"></canvas>
             </div>
-
             <div class="game-controls">
-              <button id="pauseBtn" class="btn btn-neon btn-neon-primary">PAUSAR</button>
-              <button id="restartBtn" class="btn btn-neon btn-neon-secondary">REINICIAR</button>
+              <button id="botonPausa" class="btn btn-neon btn-neon-primary">PAUSAR</button>
+              <button id="botonReiniciar" class="btn btn-neon btn-neon-secondary">REINICIAR</button>
             </div>
           </div>
         </div>
       </div>
-
-      <div id="gameOverScreen" class="game-over-screen" style="display: none;">
+      <div id="pantallaGameOver" class="game-over-screen" style="display: none;">
         <div class="game-over-content">
-          <h2 id="gameOverTitle" class="winner-text">¡JUEGO TERMINADO!</h2>
+          <h2 id="tituloGameOver" class="winner-text">¡JUEGO TERMINADO!</h2>
           <div class="final-stats">
             <div class="final-stat">
               <span>Puntuación Final:</span>
-              <span id="finalScore">0</span>
+              <span id="puntuacionFinal">0</span>
             </div>
             <div class="final-stat">
               <span>Líneas Completadas:</span>
-              <span id="finalLines">0</span>
+              <span id="lineasFinales">0</span>
             </div>
             <div class="final-stat">
               <span>Nivel Alcanzado:</span>
-              <span id="finalLevel">1</span>
+              <span id="nivelFinal">1</span>
             </div>
           </div>
           <div class="game-over-buttons">
-            <button id="playAgainBtn" class="btn btn-neon btn-neon-primary">JUGAR DE NUEVO</button>
-            <button id="mainMenuBtn" class="btn btn-neon btn-neon-primary">VOLVER AL INICIO</button>
+            <button id="botonJugarOtraVez" class="btn btn-neon btn-neon-primary">JUGAR DE NUEVO</button>
+            <button id="botonMenuPrincipal" class="btn btn-neon btn-neon-primary">VOLVER AL INICIO</button>
           </div>
         </div>
       </div>
-
-      <div id="pauseScreen" class="pause-screen" style="display: none;">
+      <div id="pantallaPausa" class="pause-screen" style="display: none;">
         <div class="pause-content">
           <h2 class="pause-title">JUEGO PAUSADO</h2>
-          <button id="resumeBtn" class="btn btn-neon btn-neon-primary">CONTINUAR</button>
+          <button id="botonReanudar" class="btn btn-neon btn-neon-primary">CONTINUAR</button>
         </div>
       </div>
     </div>
-
     <div class="controls-info">
       <div class="control-group">
         <h3>CONSEJOS DEL TETRIS</h3>
@@ -150,7 +135,6 @@
       </div>
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>

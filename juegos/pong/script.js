@@ -1,12 +1,7 @@
-// Inicialización del juego
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    initGame();
+    crearParticulas();
+    inicializarJuego();
 });
-
-// =============================================
-// FUNCIONES CLAVE PARA TRASLACIÓN
-// =============================================
 
 function aplicarTraslacion(objeto, dx, dy) {    
     return {
@@ -21,501 +16,453 @@ function aplicarTraslacionConLimites(objeto, dx, dy, minY, maxY) {
     return nuevaPos;
 }
 
-// Sistema de partículas
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 30;
+function crearParticulas() {
+    const contenedorParticulas = document.getElementById('particles');
+    const cantidadParticulas = 30;
     
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
+    for (let i = 0; i < cantidadParticulas; i++) {
+        const particula = document.createElement('div');
+        particula.classList.add('particle');
         
-        const left = Math.random() * 100;
-        const delay = Math.random() * 15;
-        const duration = 10 + Math.random() * 10;
+        const izquierda = Math.random() * 100;
+        const retraso = Math.random() * 15;
+        const duracion = 10 + Math.random() * 10;
         
-        particle.style.left = `${left}%`;
-        particle.style.animationDelay = `${delay}s`;
-        particle.style.animationDuration = `${duration}s`;
+        particula.style.left = `${izquierda}%`;
+        particula.style.animationDelay = `${retraso}s`;
+        particula.style.animationDuration = `${duracion}s`;
         
-        const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.backgroundColor = randomColor;
+        const colores = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
+        const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+        particula.style.backgroundColor = colorAleatorio;
         
-        const size = 1 + Math.random() * 3;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
+        const tamaño = 1 + Math.random() * 3;
+        particula.style.width = `${tamaño}px`;
+        particula.style.height = `${tamaño}px`;
         
-        particlesContainer.appendChild(particle);
+        contenedorParticulas.appendChild(particula);
     }
 }
 
-// Variables del juego
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const lienzo = document.getElementById("lienzoJuego");
+const contexto = lienzo.getContext("2d");
 
-const WIDTH = canvas.width;
-const HEIGHT = canvas.height;
+const ANCHO = lienzo.width;
+const ALTO = lienzo.height;
 
-// Constantes del juego
-const PADDLE_HEIGHT = 80;
-const PADDLE_WIDTH = 12;
-const BALL_RADIUS = 8;
-const INITIAL_BALL_SPEED = 4;
+const ALTURA_PALETA = 80;
+const ANCHO_PALETA = 12;
+const RADIO_PELOTA = 8;
+const VELOCIDAD_INICIAL_PELOTA = 4;
 
-// Objetos del juego
-const leftPaddle = { 
+const paletaIzquierda = { 
     x: 30, 
-    y: HEIGHT/2 - PADDLE_HEIGHT/2, 
-    w: PADDLE_WIDTH, 
-    h: PADDLE_HEIGHT, 
-    speed: 6,
+    y: ALTO/2 - ALTURA_PALETA/2, 
+    w: ANCHO_PALETA, 
+    h: ALTURA_PALETA, 
+    velocidad: 6,
     color: '#00ffff'
 };
 
-const rightPaddle = { 
-    x: WIDTH - 30 - PADDLE_WIDTH, 
-    y: HEIGHT/2 - PADDLE_HEIGHT/2, 
-    w: PADDLE_WIDTH, 
-    h: PADDLE_HEIGHT, 
-    speed: 6,
+const paletaDerecha = { 
+    x: ANCHO - 30 - ANCHO_PALETA, 
+    y: ALTO/2 - ALTURA_PALETA/2, 
+    w: ANCHO_PALETA, 
+    h: ALTURA_PALETA, 
+    velocidad: 6,
     color: '#ff00ff'
 };
 
-const ball = { 
-    x: WIDTH/2, 
-    y: HEIGHT/2, 
-    r: BALL_RADIUS, 
-    dx: INITIAL_BALL_SPEED, 
-    dy: INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1),
+const pelota = { 
+    x: ANCHO/2, 
+    y: ALTO/2, 
+    r: RADIO_PELOTA, 
+    dx: VELOCIDAD_INICIAL_PELOTA, 
+    dy: VELOCIDAD_INICIAL_PELOTA * (Math.random() > 0.5 ? 1 : -1),
     color: '#39ff14'
 };
 
-// Estado del juego
-let leftScore = 0;
-let rightScore = 0;
-let speedMultiplier = 1.0;
-let currentDifficulty = 'NORMAL';
-let gameActive = true;
+let puntuacionIzquierda = 0;
+let puntuacionDerecha = 0;
+let multiplicadorVelocidad = 1.0;
+let dificultadActual = 'NORMAL';
+let juegoActivo = true;
 
-// Partículas para efectos visuales
-const particles = [];
-const MAX_PARTICLES = 50;
+const particulas = [];
+const MAX_PARTICULAS = 50;
 
-// Colores según dificultad
-const difficultyColors = {
+const coloresDificultad = {
     'NORMAL': { bg: '#111127', particle: '#333366', accent: '#00ffff' },
     'MEDIO': { bg: '#1a1a2e', particle: '#4a4a8a', accent: '#ff00ff' },
     'DIFÍCIL': { bg: '#2d1b2b', particle: '#8a4a7a', accent: '#39ff14' },
     'EXTREMO': { bg: '#3a1c1c', particle: '#ff5555', accent: '#ffff00' }
 };
 
-// Control de teclado
-let keys = {};
+let teclas = {};
 document.addEventListener("keydown", e => {
     if (['ArrowUp', 'ArrowDown', 'w', 'W', 's', 'S'].includes(e.key)) {
         e.preventDefault();
     }
-    keys[e.key] = true;
+    teclas[e.key] = true;
 });
-document.addEventListener("keyup", e => keys[e.key] = false);
+document.addEventListener("keyup", e => teclas[e.key] = false);
 
-// Inicializar partículas del juego
-function initParticles() {
-    particles.length = 0;
-    const count = currentDifficulty === 'NORMAL' ? 15 : 
-                  currentDifficulty === 'MEDIO' ? 25 :
-                  currentDifficulty === 'DIFÍCIL' ? 35 : 50;
+function inicializarParticulas() {
+    particulas.length = 0;
+    const cantidad = dificultadActual === 'NORMAL' ? 15 : 
+                  dificultadActual === 'MEDIO' ? 25 :
+                  dificultadActual === 'DIFÍCIL' ? 35 : 50;
     
-    for (let i = 0; i < count; i++) {
-        particles.push({
-            x: Math.random() * WIDTH,
-            y: Math.random() * HEIGHT,
-            size: Math.random() * 2 + 1,
-            speed: Math.random() * 1.5 + 0.5,
-            opacity: Math.random() * 0.3 + 0.1,
-            color: difficultyColors[currentDifficulty].particle
+    for (let i = 0; i < cantidad; i++) {
+        particulas.push({
+            x: Math.random() * ANCHO,
+            y: Math.random() * ALTO,
+            tamaño: Math.random() * 2 + 1,
+            velocidad: Math.random() * 1.5 + 0.5,
+            opacidad: Math.random() * 0.3 + 0.1,
+            color: coloresDificultad[dificultadActual].particle
         });
     }
 }
 
-// Inicializar juego
-function initGame() {
-    resetBall();
-    initParticles();
-    updateUI();
-    const startBtn = document.getElementById("startBtn");
-    const startScreen = document.getElementById("startScreen");
-    startScreen.style.display = "flex";
-    startBtn.addEventListener("click", function() {
-        startScreen.style.display = "none";
-        gameActive = true;
-        gameLoop();
+function inicializarJuego() {
+    reiniciarPelota();
+    inicializarParticulas();
+    actualizarUI();
+    const botonInicio = document.getElementById("botonInicio");
+    const pantallaInicio = document.getElementById("pantallaInicio");
+    pantallaInicio.style.display = "flex";
+    botonInicio.addEventListener("click", function() {
+        pantallaInicio.style.display = "none";
+        juegoActivo = true;
+        bucleJuego();
     });
 }
 
-// Actualizar interfaz de usuario
-function updateUI() {
-    document.getElementById("leftScore").textContent = leftScore;
-    document.getElementById("rightScore").textContent = rightScore;
-    document.getElementById("speedValue").textContent = speedMultiplier.toFixed(2) + 'x';
-    document.getElementById("difficultyValue").textContent = currentDifficulty;
+function actualizarUI() {
+    document.getElementById("puntuacionIzquierda").textContent = puntuacionIzquierda;
+    document.getElementById("puntuacionDerecha").textContent = puntuacionDerecha;
+    document.getElementById("valorVelocidad").textContent = multiplicadorVelocidad.toFixed(2) + 'x';
+    document.getElementById("valorDificultad").textContent = dificultadActual;
 }
 
-// Bucle principal del juego
-function gameLoop() {
-    if (gameActive) {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
+function bucleJuego() {
+    if (juegoActivo) {
+        actualizar();
+        dibujar();
+        requestAnimationFrame(bucleJuego);
     }
 }
 
-// Lógica del juego
-function update() {
-
-    // =============================================
-    // TRASLACIÓN DE PALETAS USANDO P' = P + T
-    // =============================================
-
-    // Paleta izquierda - Traslación vertical
-    if (keys["w"] || keys["W"]) {
+//Funciones de actualización y dibujo
+function actualizar() {
+    if (teclas["w"] || teclas["W"]) {
         const nuevaPos = aplicarTraslacionConLimites(
-            leftPaddle, 
+            paletaIzquierda, 
             0, 
-            -leftPaddle.speed,
-            0,  // ← AGREGAR ESTE PARÁMETRO (límite inferior)
-            HEIGHT - leftPaddle.h  // ← AGREGAR ESTE PARÁMETRO (límite superior)
+            -paletaIzquierda.velocidad,
+            0,
+            ALTO - paletaIzquierda.h
         );
-        leftPaddle.y = nuevaPos.y;
+        paletaIzquierda.y = nuevaPos.y;
     }
-    if (keys["s"] || keys["S"]) {
+    if (teclas["s"] || teclas["S"]) {
         const nuevaPos = aplicarTraslacionConLimites(
-            leftPaddle, 
+            paletaIzquierda, 
             0, 
-            leftPaddle.speed,
+            paletaIzquierda.velocidad,
             0, 
-            HEIGHT - leftPaddle.h
+            ALTO - paletaIzquierda.h
         );
-        leftPaddle.y = nuevaPos.y;
+        paletaIzquierda.y = nuevaPos.y;
     }
 
-    // Paleta derecha - Traslación vertical
-    if (keys["ArrowUp"]) {
+    if (teclas["ArrowUp"]) {
         const nuevaPos = aplicarTraslacionConLimites(
-            rightPaddle, 
+            paletaDerecha, 
             0, 
-            -rightPaddle.speed, // T = (0, -speed)
+            -paletaDerecha.velocidad,
             0, 
-            HEIGHT - rightPaddle.h
+            ALTO - paletaDerecha.h
         );
-        rightPaddle.y = nuevaPos.y;
+        paletaDerecha.y = nuevaPos.y;
     }
-    if (keys["ArrowDown"]) {
+    if (teclas["ArrowDown"]) {
         const nuevaPos = aplicarTraslacionConLimites(
-            rightPaddle, 
+            paletaDerecha, 
             0, 
-            rightPaddle.speed,  // T = (0, +speed)
+            paletaDerecha.velocidad,
             0, 
-            HEIGHT - rightPaddle.h
+            ALTO - paletaDerecha.h
         );
-        rightPaddle.y = nuevaPos.y;
+        paletaDerecha.y = nuevaPos.y;
     }
 
-    // =============================================
-    // TRASLACIÓN DE LA PELOTA USANDO P' = P + T
-    // =============================================
-    
     const vectorTraslacion = {
-        dx: ball.dx * speedMultiplier,
-        dy: ball.dy * speedMultiplier
+        dx: pelota.dx * multiplicadorVelocidad,
+        dy: pelota.dy * multiplicadorVelocidad
     };
     
-    const nuevaPosPelota = aplicarTraslacion(ball, vectorTraslacion.dx, vectorTraslacion.dy);
-    ball.x = nuevaPosPelota.x;
-    ball.y = nuevaPosPelota.y;
+    // Movimiento de la pelota
 
-    updateParticles();
-    updateDifficulty();
+    const nuevaPosPelota = aplicarTraslacion(pelota, vectorTraslacion.dx, vectorTraslacion.dy);
+    pelota.x = nuevaPosPelota.x;
+    pelota.y = nuevaPosPelota.y;
 
-    // Rebote en paredes superior e inferior
-    if (ball.y - ball.r < 0 || ball.y + ball.r > HEIGHT) {
-        ball.dy *= -1;
-        createHitEffect(ball.x, ball.y);
+    actualizarParticulas();
+    actualizarDificultad();
+
+    // Colisión con paredes superior e inferior
+
+    if (pelota.y - pelota.r < 0 || pelota.y + pelota.r > ALTO) {
+        pelota.dy *= -1;
+        crearEfectoGolpe(pelota.x, pelota.y);
     }
 
     // Colisión con paleta izquierda
-    if (ball.x - ball.r < leftPaddle.x + leftPaddle.w &&
-        ball.y > leftPaddle.y &&
-        ball.y < leftPaddle.y + leftPaddle.h) {
+
+    if (pelota.x - pelota.r < paletaIzquierda.x + paletaIzquierda.w &&
+        pelota.y > paletaIzquierda.y &&
+        pelota.y < paletaIzquierda.y + paletaIzquierda.h) {
         
-        ball.dx = Math.abs(ball.dx);
-        ball.x = leftPaddle.x + leftPaddle.w + ball.r;
-        increaseSpeed();
-        createHitEffect(ball.x, ball.y);
-        paddleFlash(leftPaddle);
+        pelota.dx = Math.abs(pelota.dx);
+        pelota.x = paletaIzquierda.x + paletaIzquierda.w + pelota.r;
+        aumentarVelocidad();
+        crearEfectoGolpe(pelota.x, pelota.y);
+        efectoFlashPaleta(paletaIzquierda);
     }
 
     // Colisión con paleta derecha
-    if (ball.x + ball.r > rightPaddle.x &&
-        ball.y > rightPaddle.y &&
-        ball.y < rightPaddle.y + rightPaddle.h) {
+
+    if (pelota.x + pelota.r > paletaDerecha.x &&
+        pelota.y > paletaDerecha.y &&
+        pelota.y < paletaDerecha.y + paletaDerecha.h) {
         
-        ball.dx = -Math.abs(ball.dx);
-        ball.x = rightPaddle.x - ball.r;
-        increaseSpeed();
-        createHitEffect(ball.x, ball.y);
-        paddleFlash(rightPaddle);
+        pelota.dx = -Math.abs(pelota.dx);
+        pelota.x = paletaDerecha.x - pelota.r;
+        aumentarVelocidad();
+        crearEfectoGolpe(pelota.x, pelota.y);
+        efectoFlashPaleta(paletaDerecha);
     }
 
-    // Puntos para jugadores
-    if (ball.x < 0) {
-        rightScore++;
-        showVictoryMessage("PUNTO PARA\nJUGADOR 2!", "#ff00ff");
-        resetBall();
-        checkGameEnd();
-    } else if (ball.x > WIDTH) {
-        leftScore++;
-        showVictoryMessage("PUNTO PARA\nJUGADOR 1!", "#00ffff");
-        resetBall();
-        checkGameEnd();
+    if (pelota.x < 0) {
+        puntuacionDerecha++;
+        mostrarMensajeVictoria("PUNTO PARA\nJUGADOR 2!", "#ff00ff");
+        reiniciarPelota();
+        verificarFinJuego();
+    } else if (pelota.x > ANCHO) {
+        puntuacionIzquierda++;
+        mostrarMensajeVictoria("PUNTO PARA\nJUGADOR 1!", "#00ffff");
+        reiniciarPelota();
+        verificarFinJuego();
     }
 }
 
-// Dibujos del juego
-function draw() {
-    // Fondo
-    const bgColor = difficultyColors[currentDifficulty].bg;
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+function dibujar() {
+    const colorFondo = coloresDificultad[dificultadActual].bg;
+    contexto.fillStyle = colorFondo;
+    contexto.fillRect(0, 0, ANCHO, ALTO);
 
-    // Partículas de fondo
-    drawParticles();
+    dibujarParticulas();
 
-    // Línea central punteada
-    ctx.setLineDash([10, 15]);
-    ctx.beginPath();
-    ctx.moveTo(WIDTH/2, 0);
-    ctx.lineTo(WIDTH/2, HEIGHT);
-    ctx.strokeStyle = "rgba(255,255,255,0.2)";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.setLineDash([]);
+    contexto.setLineDash([10, 15]);
+    contexto.beginPath();
+    contexto.moveTo(ANCHO/2, 0);
+    contexto.lineTo(ANCHO/2, ALTO);
+    contexto.strokeStyle = "rgba(255,255,255,0.2)";
+    contexto.lineWidth = 3;
+    contexto.stroke();
+    contexto.setLineDash([]);
 
-    // Paletas con efecto de brillo
-    drawPaddle(leftPaddle);
-    drawPaddle(rightPaddle);
+    dibujarPaleta(paletaIzquierda);
+    dibujarPaleta(paletaDerecha);
 
-    // Pelota con efectos
-    drawBall();
+    dibujarPelota();
 
-    // Estela de velocidad
-    drawSpeedTrail();
+    dibujarEstelaVelocidad();
 }
 
-// Dibujar paleta con efectos
-function drawPaddle(paddle) {
-    // Sombra de la paleta
-    ctx.fillStyle = paddle.color + '40';
-    ctx.fillRect(paddle.x - 2, paddle.y - 2, paddle.w + 4, paddle.h + 4);
+function dibujarPaleta(paleta) {
+    contexto.fillStyle = paleta.color + '40';
+    contexto.fillRect(paleta.x - 2, paleta.y - 2, paleta.w + 4, paleta.h + 4);
     
-    // Paleta principal
-    ctx.fillStyle = paddle.color;
-    ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+    contexto.fillStyle = paleta.color;
+    contexto.fillRect(paleta.x, paleta.y, paleta.w, paleta.h);
     
-    // Efecto de brillo interno
-    const gradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.w, paddle.y);
-    gradient.addColorStop(0, paddle.color + '80');
-    gradient.addColorStop(1, paddle.color);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(paddle.x, paddle.y, paddle.w / 2, paddle.h);
+    const gradiente = contexto.createLinearGradient(paleta.x, paleta.y, paleta.x + paleta.w, paleta.y);
+    gradiente.addColorStop(0, paleta.color + '80');
+    gradiente.addColorStop(1, paleta.color);
+    contexto.fillStyle = gradiente;
+    contexto.fillRect(paleta.x, paleta.y, paleta.w / 2, paleta.h);
 }
 
-// Dibujar pelota con efectos
-function drawBall() {
-    // Estela de la pelota
-    const trailGradient = ctx.createRadialGradient(
-        ball.x, ball.y, 0,
-        ball.x, ball.y, ball.r * 3
+function dibujarPelota() {
+    const gradienteEstela = contexto.createRadialGradient(
+        pelota.x, pelota.y, 0,
+        pelota.x, pelota.y, pelota.r * 3
     );
-    trailGradient.addColorStop(0, ball.color + '80');
-    trailGradient.addColorStop(1, ball.color + '00');
+    gradienteEstela.addColorStop(0, pelota.color + '80');
+    gradienteEstela.addColorStop(1, pelota.color + '00');
     
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.r * 3, 0, Math.PI * 2);
-    ctx.fillStyle = trailGradient;
-    ctx.fill();
+    contexto.beginPath();
+    contexto.arc(pelota.x, pelota.y, pelota.r * 3, 0, Math.PI * 2);
+    contexto.fillStyle = gradienteEstela;
+    contexto.fill();
 
-    // Pelota principal
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-    ctx.fillStyle = ball.color;
-    ctx.fill();
+    contexto.beginPath();
+    contexto.arc(pelota.x, pelota.y, pelota.r, 0, Math.PI * 2);
+    contexto.fillStyle = pelota.color;
+    contexto.fill();
 
-    // Reflejo de la pelota
-    ctx.beginPath();
-    ctx.arc(ball.x - ball.r/3, ball.y - ball.r/3, ball.r/3, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff80';
-    ctx.fill();
+    contexto.beginPath();
+    contexto.arc(pelota.x - pelota.r/3, pelota.y - pelota.r/3, pelota.r/3, 0, Math.PI * 2);
+    contexto.fillStyle = '#ffffff80';
+    contexto.fill();
 }
 
-// Dibujar estela de velocidad
-function drawSpeedTrail() {
-    if (speedMultiplier > 1.2) {
+function dibujarEstelaVelocidad() {
+    if (multiplicadorVelocidad > 1.2) {
         for (let i = 0; i < 3; i++) {
-            const trailX = ball.x - ball.dx * i * 2;
-            const trailY = ball.y - ball.dy * i * 2;
-            const opacity = 0.3 - (i * 0.1);
+            const estelaX = pelota.x - pelota.dx * i * 2;
+            const estelaY = pelota.y - pelota.dy * i * 2;
+            const opacidad = 0.3 - (i * 0.1);
             
-            ctx.beginPath();
-            ctx.arc(trailX, trailY, ball.r * (1 - i * 0.2), 0, Math.PI * 2);
-            ctx.fillStyle = ball.color.replace(')', `,${opacity})`).replace('rgb', 'rgba');
-            ctx.fill();
+            contexto.beginPath();
+            contexto.arc(estelaX, estelaY, pelota.r * (1 - i * 0.2), 0, Math.PI * 2);
+            contexto.fillStyle = pelota.color.replace(')', `,${opacidad})`).replace('rgb', 'rgba');
+            contexto.fill();
         }
     }
 }
 
-// Dibujar partículas
-function drawParticles() {
-    particles.forEach(particle => {
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color.replace(')', `,${particle.opacity})`).replace('rgb', 'rgba');
-        ctx.fill();
+function dibujarParticulas() {
+    particulas.forEach(particula => {
+        contexto.beginPath();
+        contexto.arc(particula.x, particula.y, particula.tamaño, 0, Math.PI * 2);
+        contexto.fillStyle = particula.color.replace(')', `,${particula.opacidad})`).replace('rgb', 'rgba');
+        contexto.fill();
     });
 }
 
-// Actualizar partículas
-function updateParticles() {
-    particles.forEach(particle => {
-        particle.y += particle.speed * (speedMultiplier * 0.3);
-        if (particle.y > HEIGHT) {
-            particle.y = 0;
-            particle.x = Math.random() * WIDTH;
+function actualizarParticulas() {
+    particulas.forEach(particula => {
+        particula.y += particula.velocidad * (multiplicadorVelocidad * 0.3);
+        if (particula.y > ALTO) {
+            particula.y = 0;
+            particula.x = Math.random() * ANCHO;
         }
-        // Variar opacidad para efecto de parpadeo
-        particle.opacity = 0.1 + Math.sin(Date.now() * 0.001 + particle.x) * 0.2;
+        particula.opacidad = 0.1 + Math.sin(Date.now() * 0.001 + particula.x) * 0.2;
     });
 }
 
-// Efecto de flash en paleta al golpear
-function paddleFlash(paddle) {
-    const originalColor = paddle.color;
-    paddle.color = '#ffffff';
+function efectoFlashPaleta(paleta) {
+    const colorOriginal = paleta.color;
+    paleta.color = '#ffffff';
     setTimeout(() => {
-        paddle.color = originalColor;
+        paleta.color = colorOriginal;
     }, 100);
 }
 
-// Crear efecto de partículas al golpear
-function createHitEffect(x, y) {
+function crearEfectoGolpe(x, y) {
     for (let i = 0; i < 5; i++) {
-        particles.push({
+        particulas.push({
             x: x,
             y: y,
-            size: Math.random() * 3 + 1,
-            speed: Math.random() * 3 - 1.5,
-            opacity: 1,
-            color: ball.color
+            tamaño: Math.random() * 3 + 1,
+            velocidad: Math.random() * 3 - 1.5,
+            opacidad: 1,
+            color: pelota.color
         });
     }
 }
 
-// Aumentar velocidad
-function increaseSpeed() {
-    speedMultiplier += 0.03;
-    if (speedMultiplier > 2.5) {
-        speedMultiplier = 2.5;
+function aumentarVelocidad() {
+    multiplicadorVelocidad += 0.03;
+    if (multiplicadorVelocidad > 2.5) {
+        multiplicadorVelocidad = 2.5;
     }
 }
 
-// Actualizar dificultad
-function updateDifficulty() {
-    let newDifficulty;
-    if (speedMultiplier < 1.3) {
-        newDifficulty = 'NORMAL';
-    } else if (speedMultiplier < 1.7) {
-        newDifficulty = 'MEDIO';
-    } else if (speedMultiplier < 2.1) {
-        newDifficulty = 'DIFÍCIL';
+function actualizarDificultad() {
+    let nuevaDificultad;
+    if (multiplicadorVelocidad < 1.3) {
+        nuevaDificultad = 'NORMAL';
+    } else if (multiplicadorVelocidad < 1.7) {
+        nuevaDificultad = 'MEDIO';
+    } else if (multiplicadorVelocidad < 2.1) {
+        nuevaDificultad = 'DIFÍCIL';
     } else {
-        newDifficulty = 'EXTREMO';
+        nuevaDificultad = 'EXTREMO';
     }
     
-    if (newDifficulty !== currentDifficulty) {
-        currentDifficulty = newDifficulty;
-        ball.color = difficultyColors[currentDifficulty].accent;
-        initParticles();
-        updateUI();
+    if (nuevaDificultad !== dificultadActual) {
+        dificultadActual = nuevaDificultad;
+        pelota.color = coloresDificultad[dificultadActual].accent;
+        inicializarParticulas();
+        actualizarUI();
     }
 }
 
-// Mostrar mensaje de victoria
-function showVictoryMessage(message, color) {
-    const victoryMessage = document.getElementById("victoryMessage");
-    victoryMessage.textContent = message;
-    victoryMessage.style.color = color;
-    victoryMessage.style.textShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
-    victoryMessage.classList.add("show");
+function mostrarMensajeVictoria(mensaje, color) {
+    const mensajeVictoria = document.getElementById("mensajeVictoria");
+    mensajeVictoria.textContent = mensaje;
+    mensajeVictoria.style.color = color;
+    mensajeVictoria.style.textShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
+    mensajeVictoria.classList.add("show");
     
     setTimeout(() => {
-        victoryMessage.classList.remove("show");
+        mensajeVictoria.classList.remove("show");
     }, 1500);
 }
 
-// Reiniciar pelota
-function resetBall() {
-    document.getElementById("gameOverScreen").style.display = "none";
-    ball.x = WIDTH/2;
-    ball.y = HEIGHT/2;
-    ball.dx = INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
-    ball.dy = INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
-    speedMultiplier = 1.0;
-    currentDifficulty = 'NORMAL';
-    ball.color = difficultyColors[currentDifficulty].accent;
-    initParticles();
-    updateUI();
+function reiniciarPelota() {
+    document.getElementById("pantallaGameOver").style.display = "none";
+    pelota.x = ANCHO/2;
+    pelota.y = ALTO/2;
+    pelota.dx = VELOCIDAD_INICIAL_PELOTA * (Math.random() > 0.5 ? 1 : -1);
+    pelota.dy = VELOCIDAD_INICIAL_PELOTA * (Math.random() > 0.5 ? 1 : -1);
+    multiplicadorVelocidad = 1.0;
+    dificultadActual = 'NORMAL';
+    pelota.color = coloresDificultad[dificultadActual].accent;
+    inicializarParticulas();
+    actualizarUI();
 }
 
-// Verificar fin del juego
-function checkGameEnd() {
-    if (leftScore >= 5 || rightScore >= 5) {
-        gameActive = false;
-        const winner = leftScore >= 5 ? "JUGADOR 1" : "JUGADOR 2";
-        const color = leftScore >= 5 ? "#00ffff" : "#ff00ff";
+function verificarFinJuego() {
+    if (puntuacionIzquierda >= 5 || puntuacionDerecha >= 5) {
+        juegoActivo = false;
+        const ganador = puntuacionIzquierda >= 5 ? "JUGADOR 1" : "JUGADOR 2";
+        const color = puntuacionIzquierda >= 5 ? "#00ffff" : "#ff00ff";
         
         setTimeout(() => {
-            showGameOverScreen(winner, color);
+            mostrarPantallaGameOver(ganador, color);
         }, 1000);
     }
 }
 
-// Mostrar pantalla de game over
-function showGameOverScreen(winner, color) {
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const winnerText = document.getElementById("winnerText");
-    const playAgainBtn = document.getElementById("playAgainBtn");
-    const mainMenuBtn = document.getElementById("mainMenuBtn");
+function mostrarPantallaGameOver(ganador, color) {
+    const pantallaGameOver = document.getElementById("pantallaGameOver");
+    const textoGanador = document.getElementById("textoGanador");
+    const botonJugarOtraVez = document.getElementById("botonJugarOtraVez");
+    const botonMenuPrincipal = document.getElementById("botonMenuPrincipal");
     
-    winnerText.textContent = `¡${winner} GANA!`;
-    winnerText.style.color = color;
-    winnerText.style.textShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
+    textoGanador.textContent = `¡${ganador} GANA!`;
+    textoGanador.style.color = color;
+    textoGanador.style.textShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
     
-    gameOverScreen.style.display = "flex";
+    pantallaGameOver.style.display = "flex";
     
-    // Botón para jugar de nuevo
-    playAgainBtn.onclick = function() {
-        leftScore = 0;
-        rightScore = 0;
-        gameActive = true;
-        gameOverScreen.style.display = "none";
-        resetBall();
-        updateUI();
-        gameLoop();
+    botonJugarOtraVez.onclick = function() {
+        puntuacionIzquierda = 0;
+        puntuacionDerecha = 0;
+        juegoActivo = true;
+        pantallaGameOver.style.display = "none";
+        reiniciarPelota();
+        actualizarUI();
+        bucleJuego();
     };
     
-    // Botón para volver al inicio
-    mainMenuBtn.onclick = function() {
+    botonMenuPrincipal.onclick = function() {
         window.location.href = "../../index.html";
     };
 }

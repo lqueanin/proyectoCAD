@@ -18,83 +18,83 @@ function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
 
 // Inicialización del juego
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    initGame();
+    crearParticulas();
+    inicializarJuego();
 });
 
 // Sistema de partículas
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 40;
+function crearParticulas() {
+    const contenedorParticulas = document.getElementById('particles');
+    const cantidadParticulas = 40;
     
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
+    for (let i = 0; i < cantidadParticulas; i++) {
+        const particula = document.createElement('div');
+        particula.classList.add('particle');
         
-        const left = Math.random() * 100;
-        const delay = Math.random() * 15;
-        const duration = 10 + Math.random() * 10;
+        const izquierda = Math.random() * 100;
+        const retraso = Math.random() * 15;
+        const duracion = 10 + Math.random() * 10;
         
-        particle.style.left = `${left}%`;
-        particle.style.animationDelay = `${delay}s`;
-        particle.style.animationDuration = `${duration}s`;
+        particula.style.left = `${izquierda}%`;
+        particula.style.animationDelay = `${retraso}s`;
+        particula.style.animationDuration = `${duracion}s`;
         
-        const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.backgroundColor = randomColor;
+        const colores = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
+        const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+        particula.style.backgroundColor = colorAleatorio;
         
-        const size = 1 + Math.random() * 2;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
+        const tamaño = 1 + Math.random() * 2;
+        particula.style.width = `${tamaño}px`;
+        particula.style.height = `${tamaño}px`;
         
-        particlesContainer.appendChild(particle);
+        contenedorParticulas.appendChild(particula);
     }
 }
 
 // Variables del juego
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const lienzo = document.getElementById("lienzoJuego");
+const contexto = lienzo.getContext("2d");
 
 // Configuración del canvas
-canvas.width = 800;
-canvas.height = 600;
+lienzo.width = 800;
+lienzo.height = 600;
 
 // Estado del juego
-let gameState = {
-    score: 0,
-    level: 1,
-    lives: 3,
-    invadersDestroyed: 0,
-    highScore: localStorage.getItem('spaceInvadersHighScore') || 0,
-    gameOver: false
+let estadoJuego = {
+    puntuacion: 0,
+    nivel: 1,
+    vidas: 3,
+    invasoresDestruidos: 0,
+    puntuacionMaxima: localStorage.getItem('spaceInvadersHighScore') || 0,
+    juegoTerminado: false
 };
 
 // Elementos del juego
-let player, bullets, invaders, explosions;
-let enemyDirection = 1;
-let gameActive = false;
-let gamePaused = false;
+let jugador, balas, invasores, explosiones;
+let direccionEnemigo = 1;
+let juegoActivo = false;
+let juegoPausado = false;
 
 // Inicializar juego
-function initGame() {
+function inicializarJuego() {
     // Botón de inicio
-    const startBtn = document.getElementById("startBtn");
-    const startScreen = document.getElementById("startScreen");
-    const gameContent = document.querySelector(".game-content");
+    const botonInicio = document.getElementById("botonInicio");
+    const pantallaInicio = document.getElementById("pantallaInicio");
+    const contenidoJuego = document.querySelector(".contenidoJuego");
     
-    startBtn.addEventListener("click", function() {
-        startScreen.style.display = "none";
-        gameContent.style.display = "block";
-        startGame();
+    botonInicio.addEventListener("click", function() {
+        pantallaInicio.style.display = "none";
+        contenidoJuego.style.display = "block";
+        comenzarJuego();
     });
 
     // Botones de control
-    document.getElementById("pauseBtn").addEventListener("click", togglePause);
-    document.getElementById("restartBtn").addEventListener("click", restartGame);
-    document.getElementById("resumeBtn").addEventListener("click", togglePause);
-    document.getElementById("playAgainBtn").addEventListener("click", restartGame);
-    document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
-    document.getElementById("mainMenuBtn").addEventListener("click", () => {
+    document.getElementById("botonPausa").addEventListener("click", alternarPausa);
+    document.getElementById("botonReiniciar").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonReanudar").addEventListener("click", alternarPausa);
+    document.getElementById("botonJugarOtraVez").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonSiguienteNivel").addEventListener("click", siguienteNivel);
+    document.getElementById("botonMenuPrincipal").addEventListener("click", () => {
         window.location.href = "../../index.html";
     });
 
@@ -105,391 +105,391 @@ function initGame() {
         }
     });
 
-    updateHighScore();
+    actualizarPuntuacionMaxima();
 }
 
 // Iniciar juego
-function startGame() {
-    gameState = {
-        score: 0,
-        level: 1,
-        lives: 3,
-        invadersDestroyed: 0,
-        highScore: localStorage.getItem('spaceInvadersHighScore') || 0,
-        gameOver: false
+function comenzarJuego() {
+    estadoJuego = {
+        puntuacion: 0,
+        nivel: 1,
+        vidas: 3,
+        invasoresDestruidos: 0,
+        puntuacionMaxima: localStorage.getItem('spaceInvadersHighScore') || 0,
+        juegoTerminado: false
     };
     
     // Jugador
-    player = {
-        x: canvas.width / 2,
-        y: canvas.height - 80,
-        width: 60,
-        height: 25,
-        speed: 6,
+    jugador = {
+        x: lienzo.width / 2,
+        y: lienzo.height - 80,
+        ancho: 60,
+        alto: 25,
+        velocidad: 6,
         color: "#00ccff",
-        canShoot: true,
-        shootCooldown: 400
+        puedeDisparar: true,
+        tiempoRecarga: 400
     };
     
-    bullets = [];
-    invaders = [];
-    explosions = [];
-    enemyDirection = 1;
+    balas = [];
+    invasores = [];
+    explosiones = [];
+    direccionEnemigo = 1;
     
-    gameActive = true;
-    gamePaused = false;
+    juegoActivo = true;
+    juegoPausado = false;
     
-    createInvaders();
-    updateUI();
-    gameLoop();
+    crearInvasores();
+    actualizarUI();
+    bucleJuego();
 }
 
 // Generar invasores
-function createInvaders() {
-    invaders = [];
-    const rows = 5, cols = 9;
-    const spacingX = 70, spacingY = 55;
-    const offsetX = (canvas.width - cols * spacingX) / 2;
-    const colors = ["#ff4d4d", "#ff9933", "#ffff66", "#99ff33", "#66ccff"];
+function crearInvasores() {
+    invasores = [];
+    const filas = 5, columnas = 9;
+    const espaciadoX = 70, espaciadoY = 55;
+    const desplazamientoX = (lienzo.width - columnas * espaciadoX) / 2;
+    const colores = ["#ff4d4d", "#ff9933", "#ffff66", "#99ff33", "#66ccff"];
     
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            invaders.push({
-                x: offsetX + c * spacingX,
-                y: 80 + r * spacingY,
-                width: 40,
-                height: 25,
-                color: colors[r % colors.length],
-                alive: true,
-                speed: 1 + (gameState.level * 0.5)
+    for (let f = 0; f < filas; f++) {
+        for (let c = 0; c < columnas; c++) {
+            invasores.push({
+                x: desplazamientoX + c * espaciadoX,
+                y: 80 + f * espaciadoY,
+                ancho: 40,
+                alto: 25,
+                color: colores[f % colores.length],
+                vivo: true,
+                velocidad: 1 + (estadoJuego.nivel * 0.5)
             });
         }
     }
 }
 
 // Control de teclado
-const keys = {};
+const teclas = {};
 document.addEventListener("keydown", e => {
-    keys[e.key] = true;
+    teclas[e.key] = true;
     if (e.key === ' ') e.preventDefault();
 });
-document.addEventListener("keyup", e => keys[e.key] = false);
+document.addEventListener("keyup", e => teclas[e.key] = false);
 
 // Disparar
 document.addEventListener("keydown", e => {
-    if (e.code === "Space" && gameActive && !gamePaused && player.canShoot) {
-        shoot();
+    if (e.code === "Space" && juegoActivo && !juegoPausado && jugador.puedeDisparar) {
+        disparar();
     }
 });
 
-function shoot() {
-    bullets.push({
-        x: player.x + player.width / 2 - 2,
-        y: player.y,
-        width: 4,
-        height: 10,
-        speed: 8,
+function disparar() {
+    balas.push({
+        x: jugador.x + jugador.ancho / 2 - 2,
+        y: jugador.y,
+        ancho: 4,
+        alto: 10,
+        velocidad: 8,
         color: "#00ffff"
     });
-    player.canShoot = false;
-    setTimeout(() => player.canShoot = true, player.shootCooldown);
+    jugador.puedeDisparar = false;
+    setTimeout(() => jugador.puedeDisparar = true, jugador.tiempoRecarga);
 }
 
 // =============================================
 // ACTUALIZAR JUEGO CON TRASLACIONES GEOMÉTRICAS
 // =============================================
-function update() {
-    if (!gameActive || gamePaused || gameState.gameOver) return;
+function actualizar() {
+    if (!juegoActivo || juegoPausado || estadoJuego.juegoTerminado) return;
     
     // =============================================
     // MOVIMIENTO DEL JUGADOR CON TRASLACIÓN Y LÍMITES
     // =============================================
-    if (keys["ArrowLeft"]) {
+    if (teclas["ArrowLeft"]) {
         const nuevaPos = aplicarTraslacionConLimites(
-            player,
-            -player.speed,
+            jugador,
+            -jugador.velocidad,
             0,
             0,
-            canvas.width - player.width,
+            lienzo.width - jugador.ancho,
             0,
-            canvas.height
+            lienzo.height
         );
-        player.x = nuevaPos.x;
+        jugador.x = nuevaPos.x;
     }
-    if (keys["ArrowRight"]) {
+    if (teclas["ArrowRight"]) {
         const nuevaPos = aplicarTraslacionConLimites(
-            player,
-            player.speed,
+            jugador,
+            jugador.velocidad,
             0,
             0,
-            canvas.width - player.width,
+            lienzo.width - jugador.ancho,
             0,
-            canvas.height
+            lienzo.height
         );
-        player.x = nuevaPos.x;
+        jugador.x = nuevaPos.x;
     }
     
     // =============================================
     // MOVIMIENTO DE BALAS CON TRASLACIÓN VERTICAL
     // =============================================
-    bullets.forEach(bullet => {
-        const vectorTraslacion = { dx: 0, dy: -bullet.speed }; // T = (0, -speed)
-        const nuevaPos = aplicarTraslacion(bullet, vectorTraslacion.dx, vectorTraslacion.dy);
-        bullet.x = nuevaPos.x;
-        bullet.y = nuevaPos.y;
+    balas.forEach(bala => {
+        const vectorTraslacion = { dx: 0, dy: -bala.velocidad }; // T = (0, -velocidad)
+        const nuevaPos = aplicarTraslacion(bala, vectorTraslacion.dx, vectorTraslacion.dy);
+        bala.x = nuevaPos.x;
+        bala.y = nuevaPos.y;
     });
-    bullets = bullets.filter(bullet => bullet.y + bullet.height > 0);
+    balas = balas.filter(bala => bala.y + bala.alto > 0);
     
     // =============================================
     // MOVIMIENTO DE INVASORES CON TRASLACIÓN HORIZONTAL
     // =============================================
-    let hitEdge = false;
-    invaders.forEach(invader => {
-        if (invader.alive) {
+    let tocoBorde = false;
+    invasores.forEach(invasor => {
+        if (invasor.vivo) {
             const vectorTraslacion = { 
-                dx: enemyDirection * invader.speed, 
+                dx: direccionEnemigo * invasor.velocidad, 
                 dy: 0 
             };
-            const nuevaPos = aplicarTraslacion(invader, vectorTraslacion.dx, vectorTraslacion.dy);
-            invader.x = nuevaPos.x;
+            const nuevaPos = aplicarTraslacion(invasor, vectorTraslacion.dx, vectorTraslacion.dy);
+            invasor.x = nuevaPos.x;
             
-            if (invader.x <= 0 || invader.x + invader.width >= canvas.width) {
-                hitEdge = true;
+            if (invasor.x <= 0 || invasor.x + invasor.ancho >= lienzo.width) {
+                tocoBorde = true;
             }
         }
     });
     
-    if (hitEdge) {
-        enemyDirection *= -1;
-        invaders.forEach(invader => {
-            if (invader.alive) {
+    if (tocoBorde) {
+        direccionEnemigo *= -1;
+        invasores.forEach(invasor => {
+            if (invasor.vivo) {
                 // =============================================
                 // TRASLACIÓN VERTICAL HACIA ABAJO AL LLEGAR AL BORDE
                 // =============================================
                 const vectorDescenso = { dx: 0, dy: 20 };
-                const nuevaPos = aplicarTraslacion(invader, vectorDescenso.dx, vectorDescenso.dy);
-                invader.y = nuevaPos.y;
+                const nuevaPos = aplicarTraslacion(invasor, vectorDescenso.dx, vectorDescenso.dy);
+                invasor.y = nuevaPos.y;
             }
         });
     }
     
     // Detección de colisiones de la bala del invasor
-    bullets.forEach((bullet, bulletIndex) => {
-        invaders.forEach((invader, invaderIndex) => {
-            if (invader.alive &&
-                bullet.x < invader.x + invader.width && 
-                bullet.x + bullet.width > invader.x &&
-                bullet.y < invader.y + invader.height && 
-                bullet.y + bullet.height > invader.y) {
+    balas.forEach((bala, indiceBala) => {
+        invasores.forEach((invasor, indiceInvasor) => {
+            if (invasor.vivo &&
+                bala.x < invasor.x + invasor.ancho && 
+                bala.x + bala.ancho > invasor.x &&
+                bala.y < invasor.y + invasor.alto && 
+                bala.y + bala.alto > invasor.y) {
                 
                 // Destruir invasor
-                invader.alive = false;
-                bullets.splice(bulletIndex, 1);
+                invasor.vivo = false;
+                balas.splice(indiceBala, 1);
                 
                 // Crear explosión
-                explosions.push({
-                    x: invader.x + invader.width / 2,
-                    y: invader.y + invader.height / 2,
-                    radius: 0,
-                    maxRadius: 20,
-                    color: invader.color
+                explosiones.push({
+                    x: invasor.x + invasor.ancho / 2,
+                    y: invasor.y + invasor.alto / 2,
+                    radio: 0,
+                    radioMaximo: 20,
+                    color: invasor.color
                 });
                 
                 // Actualizar puntuación
-                gameState.score += 10;
-                gameState.invadersDestroyed++;
-                updateUI();
+                estadoJuego.puntuacion += 10;
+                estadoJuego.invasoresDestruidos++;
+                actualizarUI();
             }
         });
     });
     
     // Actualizar explosiones
-    explosions.forEach(explosion => {
-        explosion.radius += 1;
+    explosiones.forEach(explosion => {
+        explosion.radio += 1;
     });
-    explosions = explosions.filter(explosion => explosion.radius < explosion.maxRadius);
+    explosiones = explosiones.filter(explosion => explosion.radio < explosion.radioMaximo);
     
     // Verificar si invasores llegaron al fondo
-    invaders.forEach(invader => {
-        if (invader.alive && invader.y + invader.height >= player.y) {
-            gameOver();
+    invasores.forEach(invasor => {
+        if (invasor.vivo && invasor.y + invasor.alto >= jugador.y) {
+            juegoTerminado();
         }
     });
     
     // Verificar si se completó el nivel
-    if (invaders.every(invader => !invader.alive)) {
-        levelComplete();
+    if (invasores.every(invasor => !invasor.vivo)) {
+        nivelCompletado();
     }
 }
 
 // Dibujos del juego
-function draw() {
+function dibujar() {
     // Fondo del espacio
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, "#000011");
-    gradient.addColorStop(1, "#000033");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const gradiente = contexto.createLinearGradient(0, 0, 0, lienzo.height);
+    gradiente.addColorStop(0, "#000011");
+    gradiente.addColorStop(1, "#000033");
+    contexto.fillStyle = gradiente;
+    contexto.fillRect(0, 0, lienzo.width, lienzo.height);
     
     // Estrellas de fondo
-    drawStars();
+    dibujarEstrellas();
     
     // Jugador con efecto neón
-    ctx.fillStyle = player.color;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = player.color;
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    ctx.shadowBlur = 0;
+    contexto.fillStyle = jugador.color;
+    contexto.shadowBlur = 15;
+    contexto.shadowColor = jugador.color;
+    contexto.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
+    contexto.shadowBlur = 0;
     
     // Balas con efecto neón
-    bullets.forEach(bullet => {
-        ctx.fillStyle = bullet.color;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = bullet.color;
-        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-        ctx.shadowBlur = 0;
+    balas.forEach(bala => {
+        contexto.fillStyle = bala.color;
+        contexto.shadowBlur = 8;
+        contexto.shadowColor = bala.color;
+        contexto.fillRect(bala.x, bala.y, bala.ancho, bala.alto);
+        contexto.shadowBlur = 0;
     });
     
     // Invasores con efecto neón
-    invaders.forEach(invader => {
-        if (invader.alive) {
-            ctx.fillStyle = invader.color;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = invader.color;
-            ctx.fillRect(invader.x, invader.y, invader.width, invader.height);
-            ctx.shadowBlur = 0;
+    invasores.forEach(invasor => {
+        if (invasor.vivo) {
+            contexto.fillStyle = invasor.color;
+            contexto.shadowBlur = 10;
+            contexto.shadowColor = invasor.color;
+            contexto.fillRect(invasor.x, invasor.y, invasor.ancho, invasor.alto);
+            contexto.shadowBlur = 0;
             
             // Detalles del invasor
-            ctx.fillStyle = "#000000";
-            ctx.fillRect(invader.x + 5, invader.y + 5, 10, 5);
-            ctx.fillRect(invader.x + 25, invader.y + 5, 10, 5);
-            ctx.fillRect(invader.x + 10, invader.y + 15, 20, 5);
+            contexto.fillStyle = "#000000";
+            contexto.fillRect(invasor.x + 5, invasor.y + 5, 10, 5);
+            contexto.fillRect(invasor.x + 25, invasor.y + 5, 10, 5);
+            contexto.fillRect(invasor.x + 10, invasor.y + 15, 20, 5);
         }
     });
     
     // Explosiones
-    explosions.forEach(explosion => {
-        ctx.beginPath();
-        ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = explosion.color;
-        ctx.lineWidth = 2;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = explosion.color;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
+    explosiones.forEach(explosion => {
+        contexto.beginPath();
+        contexto.arc(explosion.x, explosion.y, explosion.radio, 0, Math.PI * 2);
+        contexto.strokeStyle = explosion.color;
+        contexto.lineWidth = 2;
+        contexto.shadowBlur = 10;
+        contexto.shadowColor = explosion.color;
+        contexto.stroke();
+        contexto.shadowBlur = 0;
     });
 }
 
 // Dibujar estrellas de fondo
-function drawStars() {
-    ctx.fillStyle = "white";
+function dibujarEstrellas() {
+    contexto.fillStyle = "white";
     for (let i = 0; i < 100; i++) {
-        const x = (i * 127) % canvas.width;
-        const y = (i * 251) % canvas.height;
-        const size = (i % 3) + 1;
-        const opacity = 0.3 + Math.random() * 0.7;
+        const x = (i * 127) % lienzo.width;
+        const y = (i * 251) % lienzo.height;
+        const tamaño = (i % 3) + 1;
+        const opacidad = 0.3 + Math.random() * 0.7;
         
-        ctx.globalAlpha = opacity;
-        ctx.fillRect(x, y, size, size);
+        contexto.globalAlpha = opacidad;
+        contexto.fillRect(x, y, tamaño, tamaño);
     }
-    ctx.globalAlpha = 1;
+    contexto.globalAlpha = 1;
 }
 
 // Bucle principal del juego
-function gameLoop() {
-    if (gameActive) {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
+function bucleJuego() {
+    if (juegoActivo) {
+        actualizar();
+        dibujar();
+        requestAnimationFrame(bucleJuego);
     }
 }
 
 // Actualizar interfaz
-function updateUI() {
-    document.getElementById("score").textContent = gameState.score;
-    document.getElementById("level").textContent = gameState.level;
-    document.getElementById("invadersCount").textContent = invaders.filter(i => i.alive).length;
-    document.getElementById("livesCount").textContent = gameState.lives;
-    document.getElementById("highScore").textContent = gameState.highScore;
-    document.getElementById("speedValue").textContent = (1 + (gameState.level * 0.5)).toFixed(1);
+function actualizarUI() {
+    document.getElementById("puntuacion").textContent = estadoJuego.puntuacion;
+    document.getElementById("nivel").textContent = estadoJuego.nivel;
+    document.getElementById("contadorInvasores").textContent = invasores.filter(i => i.vivo).length;
+    document.getElementById("contadorVidas").textContent = estadoJuego.vidas;
+    document.getElementById("puntuacionMaxima").textContent = estadoJuego.puntuacionMaxima;
+    document.getElementById("valorVelocidad").textContent = (1 + (estadoJuego.nivel * 0.5)).toFixed(1);
 }
 
-// Actualizar high score
-function updateHighScore() {
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem('spaceInvadersHighScore', gameState.highScore);
+// Actualizar puntuación máxima
+function actualizarPuntuacionMaxima() {
+    if (estadoJuego.puntuacion > estadoJuego.puntuacionMaxima) {
+        estadoJuego.puntuacionMaxima = estadoJuego.puntuacion;
+        localStorage.setItem('spaceInvadersHighScore', estadoJuego.puntuacionMaxima);
     }
 }
 
 // Pausar/reanudar juego
-function togglePause() {
-    if (!gameActive) return;
+function alternarPausa() {
+    if (!juegoActivo) return;
     
-    gamePaused = !gamePaused;
-    const pauseScreen = document.getElementById("pauseScreen");
-    const pauseBtn = document.getElementById("pauseBtn");
+    juegoPausado = !juegoPausado;
+    const pantallaPausa = document.getElementById("pantallaPausa");
+    const botonPausa = document.getElementById("botonPausa");
     
-    if (gamePaused) {
-        pauseScreen.style.display = "flex";
-        pauseBtn.textContent = "REANUDAR";
+    if (juegoPausado) {
+        pantallaPausa.style.display = "flex";
+        botonPausa.textContent = "REANUDAR";
     } else {
-        pauseScreen.style.display = "none";
-        pauseBtn.textContent = "PAUSAR";
+        pantallaPausa.style.display = "none";
+        botonPausa.textContent = "PAUSAR";
     }
 }
 
 // Reiniciar juego
-function restartGame() {
-    document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("levelCompleteScreen").style.display = "none";
-    document.getElementById("pauseScreen").style.display = "none";
-    startGame();
+function reiniciarJuego() {
+    document.getElementById("pantallaGameOver").style.display = "none";
+    document.getElementById("pantallaNivelCompletado").style.display = "none";
+    document.getElementById("pantallaPausa").style.display = "none";
+    comenzarJuego();
 }
 
 // Nivel completado
-function levelComplete() {
-    gameActive = false;
+function nivelCompletado() {
+    juegoActivo = false;
     
-    const levelCompleteScreen = document.getElementById("levelCompleteScreen");
-    const levelScore = document.getElementById("levelScore");
-    const nextLevel = document.getElementById("nextLevel");
+    const pantallaNivelCompletado = document.getElementById("pantallaNivelCompletado");
+    const puntuacionNivel = document.getElementById("puntuacionNivel");
+    const siguienteNivel = document.getElementById("siguienteNivel");
     
-    levelScore.textContent = gameState.score;
-    nextLevel.textContent = gameState.level + 1;
+    puntuacionNivel.textContent = estadoJuego.puntuacion;
+    siguienteNivel.textContent = estadoJuego.nivel + 1;
     
     setTimeout(() => {
-        levelCompleteScreen.style.display = "flex";
+        pantallaNivelCompletado.style.display = "flex";
     }, 500);
 }
 
-function nextLevel() {
-    gameState.level++;
-    gameActive = true;
+function siguienteNivel() {
+    estadoJuego.nivel++;
+    juegoActivo = true;
     
-    document.getElementById("levelCompleteScreen").style.display = "none";
+    document.getElementById("pantallaNivelCompletado").style.display = "none";
     
-    createInvaders();
-    updateUI();
-    gameLoop();
+    crearInvasores();
+    actualizarUI();
+    bucleJuego();
 }
 
 // Game over
-function gameOver() {
-    gameState.gameOver = true;
-    gameActive = false;
-    updateHighScore();
+function juegoTerminado() {
+    estadoJuego.juegoTerminado = true;
+    juegoActivo = false;
+    actualizarPuntuacionMaxima();
     
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const finalScore = document.getElementById("finalScore");
-    const finalLevel = document.getElementById("finalLevel");
-    const finalInvaders = document.getElementById("finalInvaders");
+    const pantallaGameOver = document.getElementById("pantallaGameOver");
+    const puntuacionFinal = document.getElementById("puntuacionFinal");
+    const nivelFinal = document.getElementById("nivelFinal");
+    const invasoresFinales = document.getElementById("invasoresFinales");
     
-    finalScore.textContent = gameState.score;
-    finalLevel.textContent = gameState.level;
-    finalInvaders.textContent = gameState.invadersDestroyed;
+    puntuacionFinal.textContent = estadoJuego.puntuacion;
+    nivelFinal.textContent = estadoJuego.nivel;
+    invasoresFinales.textContent = estadoJuego.invasoresDestruidos;
     
     setTimeout(() => {
-        gameOverScreen.style.display = "flex";
+        pantallaGameOver.style.display = "flex";
     }, 500);
 }

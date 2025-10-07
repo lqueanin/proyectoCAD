@@ -8,12 +8,8 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Efecto de línea de escaneo -->
   <div class="scan-line"></div>
-  
-  <!-- Efecto de partículas -->
   <div class="particles" id="particles"></div>
-
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
       <a class="navbar-brand blink" href="../../index.html">ARCADE RETRO</a>
@@ -35,44 +31,39 @@
       </div>
     </div>
   </nav>
-
   <div class="container my-4">
     <div class="game-header text-center mb-4">
       <h1 class="game-title">PONG ARCADE</h1>
       <p class="game-subtitle">El clásico juego que inició la revolución arcade</p>
     </div>
-
     <div class="game-container">
       <div class="game-info">
         <div class="score-board">
           <div class="player-score">
             <span class="player-name">JUGADOR 1</span>
-            <span id="leftScore" class="score">0</span>
+            <span id="puntuacionIzquierda" class="score">0</span>
           </div>
           <div class="vs">VS</div>
           <div class="player-score">
             <span class="player-name">JUGADOR 2</span>
-            <span id="rightScore" class="score">0</span>
+            <span id="puntuacionDerecha" class="score">0</span>
           </div>
         </div>
-        
         <div class="game-stats">
           <div class="stat-item">
             <span class="stat-label">VELOCIDAD:</span>
-            <span id="speedValue" class="stat-value">1.00x</span>
+            <span id="valorVelocidad" class="stat-value">1.00x</span>
           </div>
           <div class="stat-item">
             <span class="stat-label">DIFICULTAD:</span>
-            <span id="difficultyValue" class="stat-value">NORMAL</span>
+            <span id="valorDificultad" class="stat-value">NORMAL</span>
           </div>
         </div>
       </div>
-
       <div class="canvas-container">
-        <canvas id="gameCanvas" width="800" height="500"></canvas>
-        <div id="victoryMessage" class="victory-message"></div>
+        <canvas id="lienzoJuego" width="800" height="500"></canvas>
+        <div id="mensajeVictoria" class="victory-message"></div>
       </div>
-
       <div class="controls-info">
         <div class="control-group">
           <h3>CONTROLES</h3>
@@ -89,40 +80,37 @@
             </div>
           </div>
         </div>
-        
-        <div id="startScreen" class="start-screen">
-            <div class="start-content">
-                <h2 class="start-title">¡PONG ARCADE!</h2>
-                <p class="start-subtitle">Preparado para el desafío</p>
-                <button id="startBtn" class="btn btn-neon btn-neon-start">COMENZAR JUEGO</button>
-                <div class="start-controls">
-                    <h3>CONTROLES</h3>
-                    <div class="control-row">
-                        <div class="control-item">
-                            <span class="key">W</span>
-                            <span class="key">S</span>
-                            <span class="control-desc">Jugador Izquierdo</span>
-                        </div>
-                        <div class="control-item">
-                            <span class="key">↑</span>
-                            <span class="key">↓</span>
-                            <span class="control-desc">Jugador Derecho</span>
-                        </div>
-                    </div>
+        <div id="pantallaInicio" class="start-screen">
+          <div class="start-content">
+            <h2 class="start-title">¡PONG ARCADE!</h2>
+            <p class="start-subtitle">Preparado para el desafío</p>
+            <button id="botonInicio" class="btn btn-neon btn-neon-start">COMENZAR JUEGO</button>
+            <div class="start-controls">
+              <h3>CONTROLES</h3>
+              <div class="control-row">
+                <div class="control-item">
+                  <span class="key">W</span>
+                  <span class="key">S</span>
+                  <span class="control-desc">Jugador Izquierdo</span>
                 </div>
-            </div>
-        </div>
-
-        <div id="gameOverScreen" class="game-over-screen" style="display: none;">
-            <div class="game-over-content">
-                <h2 id="winnerText" class="winner-text"></h2>
-                <div class="game-over-buttons">
-                    <button id="playAgainBtn" class="btn btn-neon btn-neon-primary">JUGAR DE NUEVO</button>
-                    <button id="mainMenuBtn" class="btn btn-neon btn-neon-secondary">VOLVER AL INICIO</button>
+                <div class="control-item">
+                  <span class="key">↑</span>
+                  <span class="key">↓</span>
+                  <span class="control-desc">Jugador Derecho</span>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
-
+        <div id="pantallaGameOver" class="game-over-screen" style="display: none;">
+          <div class="game-over-content">
+            <h2 id="textoGanador" class="winner-text"></h2>
+            <div class="game-over-buttons">
+              <button id="botonJugarOtraVez" class="btn btn-neon btn-neon-primary">JUGAR DE NUEVO</button>
+              <button id="botonMenuPrincipal" class="btn btn-neon btn-neon-secondary">VOLVER AL INICIO</button>
+            </div>
+          </div>
+        </div>
         <div class="game-tips">
           <h3>CONSEJOS</h3>
           <ul>
@@ -134,7 +122,6 @@
       </div>
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>

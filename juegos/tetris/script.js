@@ -18,57 +18,57 @@ function aplicarTraslacionConLimites(objeto, dx, dy, minX, maxX, minY, maxY) {
 
 // Inicialización del juego (EL RESTO DEL CÓDIGO SE MANTIENE IGUAL)
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    initGame();
+    crearParticulas();
+    inicializarJuego();
 });
 
 // Sistema de partículas
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 25;
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
-        const left = Math.random() * 100;
-        const delay = Math.random() * 15;
-        const duration = 10 + Math.random() * 10;
-        particle.style.left = `${left}%`;
-        particle.style.animationDelay = `${delay}s`;
-        particle.style.animationDuration = `${duration}s`;
-        const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.backgroundColor = randomColor;
-        const size = 1 + Math.random() * 2;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particlesContainer.appendChild(particle);
+function crearParticulas() {
+    const contenedorParticulas = document.getElementById('particles');
+    const cantidadParticulas = 25;
+    for (let i = 0; i < cantidadParticulas; i++) {
+        const particula = document.createElement('div');
+        particula.classList.add('particle');
+        const izquierda = Math.random() * 100;
+        const retraso = Math.random() * 15;
+        const duracion = 10 + Math.random() * 10;
+        particula.style.left = `${izquierda}%`;
+        particula.style.animationDelay = `${retraso}s`;
+        particula.style.animationDuration = `${duracion}s`;
+        const colores = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
+        const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+        particula.style.backgroundColor = colorAleatorio;
+        const tamaño = 1 + Math.random() * 2;
+        particula.style.width = `${tamaño}px`;
+        particula.style.height = `${tamaño}px`;
+        contenedorParticulas.appendChild(particula);
     }
 }
 
 // Variables del juego
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const nextCanvas = document.getElementById("nextPieceCanvas");
-const nextCtx = nextCanvas.getContext("2d");
+const lienzo = document.getElementById("lienzoJuego");
+const contexto = lienzo.getContext("2d");
+const lienzoSiguiente = document.getElementById("lienzoSiguientePieza");
+const contextoSiguiente = lienzoSiguiente.getContext("2d");
 
 // Configuración del tablero
 const COLUMNAS = 10;
 const FILAS = 20;
 const BLOQUE = 40;
 
-canvas.width = COLUMNAS * BLOQUE;  
-canvas.height = FILAS * BLOQUE;  
+lienzo.width = COLUMNAS * BLOQUE;  
+lienzo.height = FILAS * BLOQUE;  
 
 // Estado del juego
 let tablero = Array.from({ length: FILAS }, () => Array(COLUMNAS).fill(0));
-let score = 0;
-let level = 1;
-let lines = 0;
-let gameActive = false;
-let gamePaused = false;
-let dropCounter = 0;
-let dropInterval = 1000;
-let lastTime = 0;
+let puntuacion = 0;
+let nivel = 1;
+let lineas = 0;
+let juegoActivo = false;
+let juegoPausado = false;
+let contadorCaida = 0;
+let intervaloCaida = 1000;
+let ultimoTiempo = 0;
 
 // Colores de las piezas
 const colores = [
@@ -98,24 +98,24 @@ let piezaActual = null;
 let siguientePieza = null;
 
 // Inicializar juego
-function initGame() {
+function inicializarJuego() {
     // Botón de inicio
-    const startBtn = document.getElementById("startBtn");
-    const startScreen = document.getElementById("startScreen");
-    const gameContent = document.querySelector(".game-content");
+    const botonInicio = document.getElementById("botonInicio");
+    const pantallaInicio = document.getElementById("pantallaInicio");
+    const contenidoJuego = document.querySelector(".contenidoJuego");
     
-    startBtn.addEventListener("click", function() {
-        startScreen.style.display = "none";
-        gameContent.style.display = "block";
-        startGame();
+    botonInicio.addEventListener("click", function() {
+        pantallaInicio.style.display = "none";
+        contenidoJuego.style.display = "block";
+        comenzarJuego();
     });
 
     // Botones de control
-    document.getElementById("pauseBtn").addEventListener("click", togglePause);
-    document.getElementById("restartBtn").addEventListener("click", restartGame);
-    document.getElementById("resumeBtn").addEventListener("click", togglePause);
-    document.getElementById("playAgainBtn").addEventListener("click", restartGame);
-    document.getElementById("mainMenuBtn").addEventListener("click", () => {
+    document.getElementById("botonPausa").addEventListener("click", alternarPausa);
+    document.getElementById("botonReiniciar").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonReanudar").addEventListener("click", alternarPausa);
+    document.getElementById("botonJugarOtraVez").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonMenuPrincipal").addEventListener("click", () => {
         window.location.href = "../../index.html";
     });
 
@@ -128,19 +128,19 @@ function initGame() {
 }
 
 // Iniciar juego
-function startGame() {
+function comenzarJuego() {
     tablero = Array.from({ length: FILAS }, () => Array(COLUMNAS).fill(0));
-    score = 0;
-    level = 1;
-    lines = 0;
-    dropInterval = 1000;
-    gameActive = true;
-    gamePaused = false;
+    puntuacion = 0;
+    nivel = 1;
+    lineas = 0;
+    intervaloCaida = 1000;
+    juegoActivo = true;
+    juegoPausado = false;
     
     generarSiguientePieza();
     nuevaPieza();
-    updateUI();
-    gameLoop();
+    actualizarUI();
+    bucleJuego();
 }
 
 // Generar siguiente pieza
@@ -175,16 +175,15 @@ function nuevaPieza() {
     if (hayColision(tablero, piezaActual) || tableroLleno()) {
         // Pequeño delay para que sea más justo
         setTimeout(() => {
-            gameOver();
+            juegoTerminado();
         }, 100);
         return;
     }
 }
 
-
 // Dibujar siguiente pieza
 function dibujarSiguientePieza() {
-    nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+    contextoSiguiente.clearRect(0, 0, lienzoSiguiente.width, lienzoSiguiente.height);
     
     if (!siguientePieza) return;
     
@@ -192,26 +191,26 @@ function dibujarSiguientePieza() {
     const color = colores[siguientePieza.id];
     
     // Centrar la pieza con bloques más grandes
-    const blockSize = 20; // Vista previa
-    const offsetX = (nextCanvas.width - forma[0].length * blockSize) / 2;
-    const offsetY = (nextCanvas.height - forma.length * blockSize) / 2;
+    const tamañoBloque = 20; // Vista previa
+    const desplazamientoX = (lienzoSiguiente.width - forma[0].length * tamañoBloque) / 2;
+    const desplazamientoY = (lienzoSiguiente.height - forma.length * tamañoBloque) / 2;
     
     for (let fila = 0; fila < forma.length; fila++) {
         for (let col = 0; col < forma[fila].length; col++) {
             if (forma[fila][col]) {
-                const x = offsetX + col * blockSize;
-                const y = offsetY + fila * blockSize;
+                const x = desplazamientoX + col * tamañoBloque;
+                const y = desplazamientoY + fila * tamañoBloque;
                 
                 // Bloque con efecto neón
-                nextCtx.fillStyle = color;
-                nextCtx.shadowBlur = 10;
-                nextCtx.shadowColor = color + '80';
-                nextCtx.fillRect(x, y, blockSize - 1, blockSize - 1);
-                nextCtx.shadowBlur = 0;
+                contextoSiguiente.fillStyle = color;
+                contextoSiguiente.shadowBlur = 10;
+                contextoSiguiente.shadowColor = color + '80';
+                contextoSiguiente.fillRect(x, y, tamañoBloque - 1, tamañoBloque - 1);
+                contextoSiguiente.shadowBlur = 0;
                 
                 // Efecto de brillo interno
-                nextCtx.fillStyle = '#ffffff40';
-                nextCtx.fillRect(x + 2, y + 2, blockSize - 5, blockSize - 5);
+                contextoSiguiente.fillStyle = '#ffffff40';
+                contextoSiguiente.fillRect(x + 2, y + 2, tamañoBloque - 5, tamañoBloque - 5);
             }
         }
     }
@@ -231,7 +230,6 @@ function tableroLleno() {
     }
     return false;
 }
-
 
 // Detectar colisiones
 function hayColision(tablero, pieza) {
@@ -285,14 +283,13 @@ function fijarPieza(tablero, pieza) {
         // Pequeño delay para que el jugador vea la última pieza antes del game over
         setTimeout(() => {
             if (tableroLleno()) {
-                gameOver();
+                juegoTerminado();
             }
         }, 100);
     }
 }
 
-
-// Limpiar líneas completas
+// Limpiar líneas completadas
 function limpiarFilas() {
     let lineasCompletadas = 0;
     
@@ -307,13 +304,13 @@ function limpiarFilas() {
     
     if (lineasCompletadas > 0) {
         // Calcular puntuación
-        const puntos = [0, 40, 100, 300, 1200][lineasCompletadas] * level;
-        score += puntos;
-        lines += lineasCompletadas;
+        const puntos = [0, 40, 100, 300, 1200][lineasCompletadas] * nivel;
+        puntuacion += puntos;
+        lineas += lineasCompletadas;
         
         // Subir nivel cada 10 líneas
-        level = Math.floor(lines / 10) + 1;
-        dropInterval = Math.max(100, 1000 - (level - 1) * 100);
+        nivel = Math.floor(lineas / 10) + 1;
+        intervaloCaida = Math.max(100, 1000 - (nivel - 1) * 100);
         
         // Efecto visual tras línea completada
         crearEfectoLinea(lineasCompletadas);
@@ -321,21 +318,20 @@ function limpiarFilas() {
         // Verificar si después de limpiar líneas el tablero sigue lleno
         if (tableroLleno()) {
             setTimeout(() => {
-                gameOver();
+                juegoTerminado();
             }, 300);
         }
     }
     
     // Actualizar UI después de limpiar filas
-    updateUI();
+    actualizarUI();
 }
-
 
 // =============================================
 // MOVER PIEZA CON TRASLACIONES GEOMÉTRICAS
 // =============================================
 function moverPieza(dx, dy) {
-    if (!gameActive || gamePaused || !piezaActual) return false;
+    if (!juegoActivo || juegoPausado || !piezaActual) return false;
     
     const anteriorX = piezaActual.x;
     const anteriorY = piezaActual.y;
@@ -367,7 +363,7 @@ function moverPieza(dx, dy) {
 // MOVIMIENTO AUTOMÁTICO (CAÍDA) CON TRASLACIÓN
 // =============================================
 function moverPiezaAbajo() {
-    if (!gameActive || gamePaused || !piezaActual) return false;
+    if (!juegoActivo || juegoPausado || !piezaActual) return false;
     
     const anteriorY = piezaActual.y;
 
@@ -381,33 +377,34 @@ function moverPiezaAbajo() {
         limpiarFilas();
         
         // Solo crear nueva pieza si el juego no terminó
-        if (gameActive) {
+        if (juegoActivo) {
             nuevaPieza();
         }
         return false;
     }
     return true;
 }
+
 // Dibujos del juego
 function dibujar() {
     // Fondo
-    ctx.fillStyle = '#111127';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    contexto.fillStyle = '#111127';
+    contexto.fillRect(0, 0, lienzo.width, lienzo.height);
     
     // Cuadrícula
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 0.5;
+    contexto.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    contexto.lineWidth = 0.5;
     for (let x = 0; x <= COLUMNAS; x++) {
-        ctx.beginPath();
-        ctx.moveTo(x * BLOQUE, 0);
-        ctx.lineTo(x * BLOQUE, FILAS * BLOQUE);
-        ctx.stroke();
+        contexto.beginPath();
+        contexto.moveTo(x * BLOQUE, 0);
+        contexto.lineTo(x * BLOQUE, FILAS * BLOQUE);
+        contexto.stroke();
     }
     for (let y = 0; y <= FILAS; y++) {
-        ctx.beginPath();
-        ctx.moveTo(0, y * BLOQUE);
-        ctx.lineTo(COLUMNAS * BLOQUE, y * BLOQUE);
-        ctx.stroke();
+        contexto.beginPath();
+        contexto.moveTo(0, y * BLOQUE);
+        contexto.lineTo(COLUMNAS * BLOQUE, y * BLOQUE);
+        contexto.stroke();
     }
     
     // Bloques del tablero
@@ -436,69 +433,69 @@ function dibujar() {
 // Dibujar bloque con efectos
 function dibujarBloque(x, y, color) {
     // Sombra exterior
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = color + '80';
+    contexto.shadowBlur = 15;
+    contexto.shadowColor = color + '80';
     
     // Bloque principal
-    ctx.fillStyle = color;
-    ctx.fillRect(x + 1, y + 1, BLOQUE - 2, BLOQUE - 2);
+    contexto.fillStyle = color;
+    contexto.fillRect(x + 1, y + 1, BLOQUE - 2, BLOQUE - 2);
     
     // Efecto de brillo interno
-    const gradient = ctx.createRadialGradient(
+    const gradiente = contexto.createRadialGradient(
         x + BLOQUE/2, y + BLOQUE/2, 0,
         x + BLOQUE/2, y + BLOQUE/2, BLOQUE/2
     );
-    gradient.addColorStop(0, '#ffffff40');
-    gradient.addColorStop(1, 'transparent');
+    gradiente.addColorStop(0, '#ffffff40');
+    gradiente.addColorStop(1, 'transparent');
     
-    ctx.fillStyle = gradient;
-    ctx.fillRect(x + 3, y + 3, BLOQUE - 6, BLOQUE - 6);
+    contexto.fillStyle = gradiente;
+    contexto.fillRect(x + 3, y + 3, BLOQUE - 6, BLOQUE - 6);
     
     // Borde brillante
-    ctx.strokeStyle = '#ffffff60';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x + 1, y + 1, BLOQUE - 2, BLOQUE - 2);
+    contexto.strokeStyle = '#ffffff60';
+    contexto.lineWidth = 1;
+    contexto.strokeRect(x + 1, y + 1, BLOQUE - 2, BLOQUE - 2);
     
-    ctx.shadowBlur = 0;
+    contexto.shadowBlur = 0;
 }
 
 // =============================================
 // BUCLE PRINCIPAL CON TRASLACIÓN AUTOMÁTICA
 // =============================================
-function gameLoop(time = 0) {
-    if (!gameActive) return;
+function bucleJuego(tiempo = 0) {
+    if (!juegoActivo) return;
     
-    const delta = time - lastTime;
-    lastTime = time;
+    const delta = tiempo - ultimoTiempo;
+    ultimoTiempo = tiempo;
     
-    if (!gamePaused) {
-        dropCounter += delta;
-        if (dropCounter > dropInterval) {
+    if (!juegoPausado) {
+        contadorCaida += delta;
+        if (contadorCaida > intervaloCaida) {
             // =============================================
             // TRASLACIÓN AUTOMÁTICA HACIA ABAJO
             // =============================================
             moverPiezaAbajo();
-            dropCounter = 0;
+            contadorCaida = 0;
         }
     }
     
     dibujar();
-    updateUI();
-    requestAnimationFrame(gameLoop);
+    actualizarUI();
+    requestAnimationFrame(bucleJuego);
 }
 
 // Actualizar interfaz
-function updateUI() {
-    document.getElementById("score").textContent = score;
-    document.getElementById("level").textContent = level;
-    document.getElementById("lines").textContent = lines;
+function actualizarUI() {
+    document.getElementById("puntuacion").textContent = puntuacion;
+    document.getElementById("nivel").textContent = nivel;
+    document.getElementById("lineas").textContent = lineas;
 }
 
 // =============================================
 // CONTROLES CON TRASLACIONES GEOMÉTRICAS
 // =============================================
 document.addEventListener('keydown', evento => {
-    if (!gameActive || gamePaused || !piezaActual) return;
+    if (!juegoActivo || juegoPausado || !piezaActual) return;
     
     switch(evento.key) {
         case 'ArrowLeft':
@@ -544,7 +541,7 @@ function mostrarAdvertenciaTableroLleno() {
         z-index: 1000;
     `;
     mensaje.textContent = '¡TABLERO LLENO!';
-    document.querySelector('.game-content').appendChild(mensaje);
+    document.querySelector('.contenidoJuego').appendChild(mensaje);
     
     setTimeout(() => {
         mensaje.remove();
@@ -552,44 +549,44 @@ function mostrarAdvertenciaTableroLleno() {
 }
 
 // Pausar/reanudar juego
-function togglePause() {
-    if (!gameActive) return;
+function alternarPausa() {
+    if (!juegoActivo) return;
     
-    gamePaused = !gamePaused;
-    const pauseScreen = document.getElementById("pauseScreen");
-    const pauseBtn = document.getElementById("pauseBtn");
+    juegoPausado = !juegoPausado;
+    const pantallaPausa = document.getElementById("pantallaPausa");
+    const botonPausa = document.getElementById("botonPausa");
     
-    if (gamePaused) {
-        pauseScreen.style.display = "flex";
-        pauseBtn.textContent = "REANUDAR";
+    if (juegoPausado) {
+        pantallaPausa.style.display = "flex";
+        botonPausa.textContent = "REANUDAR";
     } else {
-        pauseScreen.style.display = "none";
-        pauseBtn.textContent = "PAUSAR";
+        pantallaPausa.style.display = "none";
+        botonPausa.textContent = "PAUSAR";
     }
 }
 
 // Reiniciar juego
-function restartGame() {
-    document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("pauseScreen").style.display = "none";
-    startGame();
+function reiniciarJuego() {
+    document.getElementById("pantallaGameOver").style.display = "none";
+    document.getElementById("pantallaPausa").style.display = "none";
+    comenzarJuego();
 }
 
 // Game over
-function gameOver() {
-    gameActive = false;
+function juegoTerminado() {
+    juegoActivo = false;
     
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const finalScore = document.getElementById("finalScore");
-    const finalLines = document.getElementById("finalLines");
-    const finalLevel = document.getElementById("finalLevel");
+    const pantallaGameOver = document.getElementById("pantallaGameOver");
+    const puntuacionFinal = document.getElementById("puntuacionFinal");
+    const lineasFinales = document.getElementById("lineasFinales");
+    const nivelFinal = document.getElementById("nivelFinal");
     
-    finalScore.textContent = score;
-    finalLines.textContent = lines;
-    finalLevel.textContent = level;
+    puntuacionFinal.textContent = puntuacion;
+    lineasFinales.textContent = lineas;
+    nivelFinal.textContent = nivel;
     
     setTimeout(() => {
-        gameOverScreen.style.display = "flex";
+        pantallaGameOver.style.display = "flex";
     }, 500);
 }
 

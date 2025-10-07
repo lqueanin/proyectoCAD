@@ -1,7 +1,7 @@
 // Inicialización del juego
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    initGame();
+    crearParticulas();
+    inicializarJuego();
 });
 
 // =============================================
@@ -29,95 +29,95 @@ function aplicarTraslacionConAngulo(objeto, velocidad, angulo) {
 }
 
 // Sistema de partículas
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 40;
+function crearParticulas() {
+    const contenedorParticulas = document.getElementById('particles');
+    const cantidadParticulas = 40;
     
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
+    for (let i = 0; i < cantidadParticulas; i++) {
+        const particula = document.createElement('div');
+        particula.classList.add('particle');
         
-        const left = Math.random() * 100;
-        const delay = Math.random() * 15;
-        const duration = 10 + Math.random() * 10;
+        const izquierda = Math.random() * 100;
+        const retraso = Math.random() * 15;
+        const duracion = 10 + Math.random() * 10;
         
-        particle.style.left = `${left}%`;
-        particle.style.animationDelay = `${delay}s`;
-        particle.style.animationDuration = `${duration}s`;
+        particula.style.left = `${izquierda}%`;
+        particula.style.animationDelay = `${retraso}s`;
+        particula.style.animationDuration = `${duracion}s`;
         
-        const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.backgroundColor = randomColor;
+        const colores = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
+        const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+        particula.style.backgroundColor = colorAleatorio;
         
-        const size = 1 + Math.random() * 2;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
+        const tamaño = 1 + Math.random() * 2;
+        particula.style.width = `${tamaño}px`;
+        particula.style.height = `${tamaño}px`;
         
-        particlesContainer.appendChild(particle);
+        contenedorParticulas.appendChild(particula);
     }
 }
 
 // Variables del juego
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const lienzo = document.getElementById("lienzoJuego");
+const contexto = lienzo.getContext("2d");
 
-const WIDTH = canvas.width;
-const HEIGHT = canvas.height;
+const ANCHO = lienzo.width;
+const ALTO = lienzo.height;
 
 // Estado del juego
-let gameState = {
-    level: 1,
-    lives: 3,
-    score: 0,
-    gameOver: false,
-    enemiesDestroyed: 0,
-    highScore: localStorage.getItem('galagaHighScore') || 0
+let estadoJuego = {
+    nivel: 1,
+    vidas: 3,
+    puntuacion: 0,
+    juegoTerminado: false,
+    enemigosDestruidos: 0,
+    puntuacionMaxima: localStorage.getItem('galagaHighScore') || 0
 };
 
 // Nave del jugador
-const player = {
-    x: WIDTH/2 - 20,
-    y: HEIGHT - 60,
+const jugador = {
+    x: ANCHO/2 - 20,
+    y: ALTO - 60,
     w: 40,
     h: 40,
-    speed: 5,
+    velocidad: 5,
     minX: 10,
-    maxX: WIDTH - 50,
+    maxX: ANCHO - 50,
     invulnerable: 0,
-    blink: 0
+    parpadeo: 0
 };
 
 // Disparos
-let bullets = [];
-let lastShotTime = 0;
-const SHOT_DELAY = 200;
+let balas = [];
+let ultimoDisparo = 0;
+const RETRASO_DISPARO = 200;
 
 // Enemigos
-let enemies = [];
-let boss = null;
-let gameTime = 0;
-let gameActive = false;
-let gamePaused = false;
+let enemigos = [];
+let jefe = null;
+let tiempoJuego = 0;
+let juegoActivo = false;
+let juegoPausado = false;
 
 // Inicializar juego
-function initGame() {
+function inicializarJuego() {
     // Botón de inicio
-    const startBtn = document.getElementById("startBtn");
-    const startScreen = document.getElementById("startScreen");
-    const gameContent = document.querySelector(".game-content");
+    const botonInicio = document.getElementById("botonInicio");
+    const pantallaInicio = document.getElementById("pantallaInicio");
+    const contenidoJuego = document.querySelector(".contenidoJuego");
     
-    startBtn.addEventListener("click", function() {
-        startScreen.style.display = "none";
-        gameContent.style.display = "block";
-        startGame();
+    botonInicio.addEventListener("click", function() {
+        pantallaInicio.style.display = "none";
+        contenidoJuego.style.display = "block";
+        comenzarJuego();
     });
 
     // Botones de control
-    document.getElementById("pauseBtn").addEventListener("click", togglePause);
-    document.getElementById("restartBtn").addEventListener("click", restartGame);
-    document.getElementById("resumeBtn").addEventListener("click", togglePause);
-    document.getElementById("playAgainBtn").addEventListener("click", restartGame);
-    document.getElementById("mainMenuBtn").addEventListener("click", () => {
+    document.getElementById("botonPausa").addEventListener("click", alternarPausa);
+    document.getElementById("botonReiniciar").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonReanudar").addEventListener("click", alternarPausa);
+    document.getElementById("botonJugarOtraVez").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonMenuPrincipal").addEventListener("click", () => {
         window.location.href = "../../index.html";
     });
 
@@ -128,172 +128,172 @@ function initGame() {
         }
     });
 
-    // Actualizar high score
-    updateHighScore();
+    // Actualizar puntuación máxima
+    actualizarPuntuacionMaxima();
 }
 
 // Iniciar juego
-function startGame() {
-    gameState = {
-        level: 1,
-        lives: 3,
-        score: 0,
-        gameOver: false,
-        enemiesDestroyed: 0,
-        highScore: localStorage.getItem('galagaHighScore') || 0
+function comenzarJuego() {
+    estadoJuego = {
+        nivel: 1,
+        vidas: 3,
+        puntuacion: 0,
+        juegoTerminado: false,
+        enemigosDestruidos: 0,
+        puntuacionMaxima: localStorage.getItem('galagaHighScore') || 0
     };
     
-    player.x = WIDTH/2 - 20;
-    player.y = HEIGHT - 60;
-    player.invulnerable = 0;
+    jugador.x = ANCHO/2 - 20;
+    jugador.y = ALTO - 60;
+    jugador.invulnerable = 0;
     
-    bullets = [];
-    enemies = [];
-    boss = null;
-    gameTime = 0;
+    balas = [];
+    enemigos = [];
+    jefe = null;
+    tiempoJuego = 0;
     
-    gameActive = true;
-    gamePaused = false;
+    juegoActivo = true;
+    juegoPausado = false;
     
-    spawnEnemies();
-    updateUI();
-    gameLoop();
+    generarEnemigos();
+    actualizarUI();
+    bucleJuego();
 }
 
 // Generar enemigos
-function spawnEnemies() {
-    enemies = [];
-    const enemyCount = 6 + gameState.level * 2;
+function generarEnemigos() {
+    enemigos = [];
+    const cantidadEnemigos = 6 + estadoJuego.nivel * 2;
     
-    for (let i = 0; i < enemyCount; i++) {
-        const startX = Math.random() * WIDTH;
+    for (let i = 0; i < cantidadEnemigos; i++) {
+        const inicioX = Math.random() * ANCHO;
         
-        enemies.push({
-            x: startX,
+        enemigos.push({
+            x: inicioX,
             y: -40,
             w: 30,
             h: 30,
-            targetX: 50 + (i % 6) * 50,
-            targetY: 50 + Math.floor(i / 6) * 40,
-            state: 'entering',
-            entryTime: 0,
-            curveAmplitude: Math.random() * 30 + 20,
-            curveFrequency: Math.random() * 0.05 + 0.02,
-            diveCooldown: Math.random() * 200 + 100,
-            hasDived: false,
-            speed: 0.5 + gameState.level * 0.1
+            objetivoX: 50 + (i % 6) * 50,
+            objetivoY: 50 + Math.floor(i / 6) * 40,
+            estado: 'entrando',
+            tiempoEntrada: 0,
+            amplitudCurva: Math.random() * 30 + 20,
+            frecuenciaCurva: Math.random() * 0.05 + 0.02,
+            tiempoRecargaPicada: Math.random() * 200 + 100,
+            haPicado: false,
+            velocidad: 0.5 + estadoJuego.nivel * 0.1
         });
     }
     
     // Crear jefe cada 2 niveles
-    if (gameState.level % 2 === 0) {
-        boss = {
-            x: WIDTH / 2 - 25,
+    if (estadoJuego.nivel % 2 === 0) {
+        jefe = {
+            x: ANCHO / 2 - 25,
             y: -60,
             w: 50,
             h: 50,
-            targetX: WIDTH / 2 - 25,
-            targetY: 100,
-            state: 'entering',
-            health: 3,
-            maxHealth: 3,
-            tractorBeam: {
-                active: false,
+            objetivoX: ANCHO / 2 - 25,
+            objetivoY: 100,
+            estado: 'entrando',
+            salud: 3,
+            saludMaxima: 3,
+            hazTractor: {
+                activo: false,
                 x: 0,
                 y: 0,
-                width: 20,
-                height: 0,
-                targetPlayer: false
+                ancho: 20,
+                alto: 0,
+                objetivoJugador: false
             },
-            attackCooldown: 300
+            tiempoRecargaAtaque: 300
         };
     }
 }
 
 // Control de teclado
-let keys = {};
+let teclas = {};
 document.addEventListener('keydown', e => {
-    keys[e.key] = true;
+    teclas[e.key] = true;
     if (e.key === ' ') e.preventDefault();
 });
-document.addEventListener('keyup', e => keys[e.key] = false);
+document.addEventListener('keyup', e => teclas[e.key] = false);
 
 // Actualizar juego
-function update() {
-    if (!gameActive || gamePaused || gameState.gameOver) return;
+function actualizar() {
+    if (!juegoActivo || juegoPausado || estadoJuego.juegoTerminado) return;
     
-    gameTime++;
+    tiempoJuego++;
     
     // Actualizar invulnerabilidad
-    if (player.invulnerable > 0) {
-        player.invulnerable--;
-        player.blink = (player.blink + 1) % 10;
+    if (jugador.invulnerable > 0) {
+        jugador.invulnerable--;
+        jugador.parpadeo = (jugador.parpadeo + 1) % 10;
     }
     
     // =============================================
     // TRASLACIÓN DEL JUGADOR USANDO P' = P + T
     // =============================================
     
-    if (keys['ArrowLeft'] || keys['a']) {
+    if (teclas['ArrowLeft'] || teclas['a']) {
         const nuevaPos = aplicarTraslacionConLimites(
-            player, 
-            -player.speed,  // T = (-speed, 0)
+            jugador, 
+            -jugador.velocidad,  // T = (-velocidad, 0)
             0,
-            player.minX, 
-            player.maxX,
+            jugador.minX, 
+            jugador.maxX,
             0,
-            HEIGHT
+            ALTO
         );
-        player.x = nuevaPos.x;
-        player.y = nuevaPos.y;
+        jugador.x = nuevaPos.x;
+        jugador.y = nuevaPos.y;
     }
     
-    if (keys['ArrowRight'] || keys['d']) {
+    if (teclas['ArrowRight'] || teclas['d']) {
         const nuevaPos = aplicarTraslacionConLimites(
-            player, 
-            player.speed,   // T = (+speed, 0)
+            jugador, 
+            jugador.velocidad,   // T = (+velocidad, 0)
             0,
-            player.minX, 
-            player.maxX,
+            jugador.minX, 
+            jugador.maxX,
             0,
-            HEIGHT
+            ALTO
         );
-        player.x = nuevaPos.x;
-        player.y = nuevaPos.y;
+        jugador.x = nuevaPos.x;
+        jugador.y = nuevaPos.y;
     }
     
     // Disparos
-    const currentTime = Date.now();
-    if ((keys[' '] || keys['Spacebar']) && bullets.length < 5 && currentTime - lastShotTime > SHOT_DELAY) {
-        bullets.push({
-            x: player.x + player.w/2 - 2,
-            y: player.y,
+    const tiempoActual = Date.now();
+    if ((teclas[' '] || teclas['Spacebar']) && balas.length < 5 && tiempoActual - ultimoDisparo > RETRASO_DISPARO) {
+        balas.push({
+            x: jugador.x + jugador.w/2 - 2,
+            y: jugador.y,
             w: 4,
             h: 10,
-            speed: 7
+            velocidad: 7
         });
-        lastShotTime = currentTime;
+        ultimoDisparo = tiempoActual;
     }
 
     // =============================================
     // TRASLACIÓN DE DISPAROS USANDO P' = P + T
     // =============================================
     
-    bullets.forEach(b => {
-        const vectorTraslacion = { dx: 0, dy: -b.speed }; // T = (0, -speed)
+    balas.forEach(b => {
+        const vectorTraslacion = { dx: 0, dy: -b.velocidad }; // T = (0, -velocidad)
         const nuevaPos = aplicarTraslacion(b, vectorTraslacion.dx, vectorTraslacion.dy);
         b.x = nuevaPos.x;
         b.y = nuevaPos.y;
     });
-    bullets = bullets.filter(b => b.y + b.h > 0);
+    balas = balas.filter(b => b.y + b.h > 0);
 
     // =============================================
     // TRASLACIÓN DE ENEMIGOS USANDO DIFERENTES TIPOS DE MOVIMIENTO
     // =============================================
     
-    enemies.forEach(e => {
-        if (e.state === 'entering') {
-            e.entryTime += 1;
+    enemigos.forEach(e => {
+        if (e.estado === 'entrando') {
+            e.tiempoEntrada += 1;
             
             // Traslación vertical simple
             const vectorEntrada = { dx: 0, dy: 1 }; // T = (0, 1)
@@ -301,66 +301,66 @@ function update() {
             e.y = nuevaPos.y;
             
             // Movimiento curvo con función seno
-            const curveOffset = Math.sin(e.entryTime * e.curveFrequency) * e.curveAmplitude;
-            e.x = e.targetX + curveOffset;
+            const desplazamientoCurva = Math.sin(e.tiempoEntrada * e.frecuenciaCurva) * e.amplitudCurva;
+            e.x = e.objetivoX + desplazamientoCurva;
             
-            if (e.y >= e.targetY) {
-                e.y = e.targetY;
-                e.state = 'formation';
+            if (e.y >= e.objetivoY) {
+                e.y = e.objetivoY;
+                e.estado = 'formacion';
             }
-        } else if (e.state === 'formation') {
+        } else if (e.estado === 'formacion') {
             // Movimiento oscilatorio en formación
-            const oscilacion = Math.sin(gameTime * 0.05) * 10;
-            e.x = e.targetX + oscilacion;
+            const oscilacion = Math.sin(tiempoJuego * 0.05) * 10;
+            e.x = e.objetivoX + oscilacion;
             
-            if (!e.hasDived && e.diveCooldown <= 0 && Math.random() < 0.005) {
-                e.state = 'diving';
-                e.diveStartX = e.x;
-                e.diveStartY = e.y;
-                e.diveAngle = Math.atan2(player.y - e.y, player.x - e.x);
+            if (!e.haPicado && e.tiempoRecargaPicada <= 0 && Math.random() < 0.005) {
+                e.estado = 'picada';
+                e.inicioPicadaX = e.x;
+                e.inicioPicadaY = e.y;
+                e.anguloPicada = Math.atan2(jugador.y - e.y, jugador.x - e.x);
             } else {
-                e.diveCooldown--;
+                e.tiempoRecargaPicada--;
             }
-        } else if (e.state === 'diving') {
+        } else if (e.estado === 'picada') {
             // =============================================
             // TRASLACIÓN CON ÁNGULO: P' = P + (velocidad * cos(θ), velocidad * sin(θ))
             // =============================================
             
-            const nuevaPos = aplicarTraslacionConAngulo(e, e.speed * 2, e.diveAngle);
+            const nuevaPos = aplicarTraslacionConAngulo(e, e.velocidad * 2, e.anguloPicada);
             e.x = nuevaPos.x;
             e.y = nuevaPos.y;
             
-            if (player.invulnerable <= 0 && 
-                e.x < player.x + player.w && e.x + e.w > player.x && 
-                e.y < player.y + player.h && e.y + e.h > player.y) {
-                loseLife();
-                e.state = 'returning';
-                e.hasDived = true;
+            if (jugador.invulnerable <= 0 && 
+                e.x < jugador.x + jugador.w && e.x + e.w > jugador.x && 
+                e.y < jugador.y + jugador.h && e.y + e.h > jugador.y) {
+                perderVida();
+                e.estado = 'regresando';
+                e.haPicado = true;
             }
             
-            if (e.y > HEIGHT || e.x < 0 || e.x > WIDTH) {
-                e.state = 'returning';
-                e.hasDived = true;
+            if (e.y > ALTO || e.x < 0 || e.x > ANCHO) {
+                e.estado = 'regresando';
+                e.haPicado = true;
             }
-        } else if (e.state === 'returning') {
+        } else if (e.estado === 'regresando') {
             // =============================================
             // TRASLACIÓN HACIA OBJETIVO: P' = P + vector_normalizado * velocidad
             // =============================================
             
-            const dx = e.targetX - e.x;
-            const dy = e.targetY - e.y;
-            const distance = Math.sqrt(dx*dx + dy*dy);
+            const dx = e.objetivoX - e.x;
+            const dy = e.objetivoY - e.y;
+            const distancia = Math.sqrt(dx*dx + dy*dy);
             
-            if (distance < 2) {
-                e.x = e.targetX;
-                e.y = e.targetY;
-                e.state = 'formation';
+            if (distancia < 2) {
+                e.x = e.objetivoX;
+                e.y = e.objetivoY;
+                e.estado = 'formacion';
             } else {
                 const vectorNormalizado = {
-                    dx: dx / distance,
-                    dy: dy / distance
+                    dx: dx / distancia,
+                    dy: dy / distancia
                 };
-                const nuevaPos = aplicarTraslacion(e, vectorNormalizado.dx * e.speed, vectorNormalizado.dy * e.speed);
+                const nuevaPos = aplicarTraslacion(e, vectorNormalizado.dx * e.velocidad, vectorNormalizado.dy * e.velocidad);
                 e.x = nuevaPos.x;
                 e.y = nuevaPos.y;
             }
@@ -371,229 +371,229 @@ function update() {
     // TRASLACIÓN DEL JEFE USANDO P' = P + T
     // =============================================
     
-    if (boss) {
-        if (boss.state === 'entering') {
+    if (jefe) {
+        if (jefe.estado === 'entrando') {
             // Traslación vertical hacia posición objetivo
             const vectorEntrada = { dx: 0, dy: 1 }; // T = (0, 1)
-            const nuevaPos = aplicarTraslacion(boss, vectorEntrada.dx, vectorEntrada.dy);
-            boss.y = nuevaPos.y;
+            const nuevaPos = aplicarTraslacion(jefe, vectorEntrada.dx, vectorEntrada.dy);
+            jefe.y = nuevaPos.y;
             
-            if (boss.y >= boss.targetY) {
-                boss.y = boss.targetY;
-                boss.state = 'formation';
+            if (jefe.y >= jefe.objetivoY) {
+                jefe.y = jefe.objetivoY;
+                jefe.estado = 'formacion';
             }
-        } else if (boss.state === 'formation') {
+        } else if (jefe.estado === 'formacion') {
             // Movimiento oscilatorio horizontal
-            const oscilacion = Math.sin(gameTime * 0.03) * 30;
-            boss.x = boss.targetX + oscilacion;
+            const oscilacion = Math.sin(tiempoJuego * 0.03) * 30;
+            jefe.x = jefe.objetivoX + oscilacion;
             
-            boss.attackCooldown--;
-            if (boss.attackCooldown <= 0) {
-                boss.state = 'prepareTractor';
-                boss.tractorBeam.active = false;
-                boss.tractorBeam.height = 0;
+            jefe.tiempoRecargaAtaque--;
+            if (jefe.tiempoRecargaAtaque <= 0) {
+                jefe.estado = 'prepararTractor';
+                jefe.hazTractor.activo = false;
+                jefe.hazTractor.alto = 0;
             }
-        } else if (boss.state === 'prepareTractor') {
+        } else if (jefe.estado === 'prepararTractor') {
             // Traslación vertical hacia abajo
             const vectorDescenso = { dx: 0, dy: 0.5 }; // T = (0, 0.5)
-            const nuevaPos = aplicarTraslacion(boss, vectorDescenso.dx, vectorDescenso.dy);
-            boss.y = nuevaPos.y;
+            const nuevaPos = aplicarTraslacion(jefe, vectorDescenso.dx, vectorDescenso.dy);
+            jefe.y = nuevaPos.y;
             
-            if (boss.y >= 150) {
-                boss.state = 'tractorAttack';
-                boss.tractorBeam.active = true;
-                boss.tractorBeam.x = boss.x + boss.w/2 - boss.tractorBeam.width/2;
-                boss.tractorBeam.y = boss.y + boss.h;
+            if (jefe.y >= 150) {
+                jefe.estado = 'ataqueTractor';
+                jefe.hazTractor.activo = true;
+                jefe.hazTractor.x = jefe.x + jefe.w/2 - jefe.hazTractor.ancho/2;
+                jefe.hazTractor.y = jefe.y + jefe.h;
             }
-        } else if (boss.state === 'tractorAttack') {
-            if (boss.tractorBeam.height < HEIGHT - boss.y - boss.h) {
-                boss.tractorBeam.height += 3;
+        } else if (jefe.estado === 'ataqueTractor') {
+            if (jefe.hazTractor.alto < ALTO - jefe.y - jefe.h) {
+                jefe.hazTractor.alto += 3;
             }
             
-            const beamRight = boss.tractorBeam.x + boss.tractorBeam.width;
-            const beamBottom = boss.tractorBeam.y + boss.tractorBeam.height;
+            const derechaHaz = jefe.hazTractor.x + jefe.hazTractor.ancho;
+            const fondoHaz = jefe.hazTractor.y + jefe.hazTractor.alto;
             
-            if (player.x < beamRight && 
-                player.x + player.w > boss.tractorBeam.x && 
-                player.y < beamBottom) {
-                boss.tractorBeam.targetPlayer = true;
+            if (jugador.x < derechaHaz && 
+                jugador.x + jugador.w > jefe.hazTractor.x && 
+                jugador.y < fondoHaz) {
+                jefe.hazTractor.objetivoJugador = true;
                 
                 // =============================================
                 // TRASLACIÓN DEL JUGADOR HACIA EL JEFE (HAZ TRACTOR)
                 // =============================================
                 
-                const dx = (boss.x + boss.w/2) - (player.x + player.w/2);
-                const dy = (boss.y + boss.h) - (player.y + player.h/2);
+                const dx = (jefe.x + jefe.w/2) - (jugador.x + jugador.w/2);
+                const dy = (jefe.y + jefe.h) - (jugador.y + jugador.h/2);
                 
                 const vectorAtraccion = {
                     dx: dx * 0.05,
                     dy: dy * 0.05
                 };
-                const nuevaPosJugador = aplicarTraslacion(player, vectorAtraccion.dx, vectorAtraccion.dy);
-                player.x = nuevaPosJugador.x;
-                player.y = nuevaPosJugador.y;
+                const nuevaPosJugador = aplicarTraslacion(jugador, vectorAtraccion.dx, vectorAtraccion.dy);
+                jugador.x = nuevaPosJugador.x;
+                jugador.y = nuevaPosJugador.y;
                 
                 if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-                    loseLife();
-                    boss.state = 'returning';
-                    boss.tractorBeam.active = false;
-                    boss.tractorBeam.targetPlayer = false;
-                    player.x = WIDTH/2 - 20;
-                    player.y = HEIGHT - 60;
+                    perderVida();
+                    jefe.estado = 'regresando';
+                    jefe.hazTractor.activo = false;
+                    jefe.hazTractor.objetivoJugador = false;
+                    jugador.x = ANCHO/2 - 20;
+                    jugador.y = ALTO - 60;
                 }
             }
             
-            if (gameTime % 400 === 0) {
-                boss.state = 'returning';
-                boss.tractorBeam.active = false;
-                boss.tractorBeam.targetPlayer = false;
-                player.x = WIDTH/2 - 20;
-                player.y = HEIGHT - 60;
+            if (tiempoJuego % 400 === 0) {
+                jefe.estado = 'regresando';
+                jefe.hazTractor.activo = false;
+                jefe.hazTractor.objetivoJugador = false;
+                jugador.x = ANCHO/2 - 20;
+                jugador.y = ALTO - 60;
             }
-        } else if (boss.state === 'returning') {
+        } else if (jefe.estado === 'regresando') {
             // Traslación vertical hacia arriba
             const vectorRetorno = { dx: 0, dy: -1.5 }; // T = (0, -1.5)
-            const nuevaPos = aplicarTraslacion(boss, vectorRetorno.dx, vectorRetorno.dy);
-            boss.y = nuevaPos.y;
+            const nuevaPos = aplicarTraslacion(jefe, vectorRetorno.dx, vectorRetorno.dy);
+            jefe.y = nuevaPos.y;
             
-            if (boss.y <= boss.targetY) {
-                boss.y = boss.targetY;
-                boss.state = 'formation';
-                boss.attackCooldown = 300;
+            if (jefe.y <= jefe.objetivoY) {
+                jefe.y = jefe.objetivoY;
+                jefe.estado = 'formacion';
+                jefe.tiempoRecargaAtaque = 300;
             }
         }
     }
 
     // Detección de colisiones
-    bullets.forEach((b, bi) => {
-        enemies.forEach((e, ei) => {
+    balas.forEach((b, indiceBala) => {
+        enemigos.forEach((e, indiceEnemigo) => {
             if (b.x < e.x + e.w && b.x + b.w > e.x && 
                 b.y < e.y + e.h && b.y + b.h > e.y) {
-                gameState.score += 100;
-                gameState.enemiesDestroyed++;
-                enemies.splice(ei, 1);
-                bullets.splice(bi, 1);
-                updateUI();
+                estadoJuego.puntuacion += 100;
+                estadoJuego.enemigosDestruidos++;
+                enemigos.splice(indiceEnemigo, 1);
+                balas.splice(indiceBala, 1);
+                actualizarUI();
             }
         });
         
-        if (boss && b.x < boss.x + boss.w && b.x + b.w > boss.x && 
-            b.y < boss.y + boss.h && b.y + b.h > boss.y) {
-            boss.health--;
-            bullets.splice(bi, 1);
+        if (jefe && b.x < jefe.x + jefe.w && b.x + b.w > jefe.x && 
+            b.y < jefe.y + jefe.h && b.y + b.h > jefe.y) {
+            jefe.salud--;
+            balas.splice(indiceBala, 1);
             
-            if (boss.health <= 0) {
-                gameState.score += 500;
-                boss = null;
-                updateUI();
+            if (jefe.salud <= 0) {
+                estadoJuego.puntuacion += 500;
+                jefe = null;
+                actualizarUI();
             }
         }
     });
 
     // Comprobar si se completó el nivel
-    if (enemies.length === 0 && boss === null) {
-        gameState.level++;
-        updateUI();
-        spawnEnemies();
+    if (enemigos.length === 0 && jefe === null) {
+        estadoJuego.nivel++;
+        actualizarUI();
+        generarEnemigos();
     }
 }
 
 // Dibujar juego
-function draw() {
+function dibujar() {
     // Fondo
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    contexto.fillStyle = "#000";
+    contexto.fillRect(0, 0, ANCHO, ALTO);
     
     // Estrellas de fondo
-    ctx.fillStyle = "white";
+    contexto.fillStyle = "white";
     for (let i = 0; i < 50; i++) {
-        const x = (i * 31) % WIDTH;
-        const y = (i * 17) % HEIGHT;
-        const size = (i % 3) + 1;
-        ctx.fillRect(x, y, size, size);
+        const x = (i * 31) % ANCHO;
+        const y = (i * 17) % ALTO;
+        const tamaño = (i % 3) + 1;
+        contexto.fillRect(x, y, tamaño, tamaño);
     }
 
     // Dibujar nave del jugador
-    if (player.invulnerable <= 0 || player.blink < 5) {
+    if (jugador.invulnerable <= 0 || jugador.parpadeo < 5) {
         // Nave con efecto neón
-        ctx.fillStyle = "#00ffff";
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = "#00ffff";
-        ctx.fillRect(player.x, player.y, player.w, player.h);
-        ctx.shadowBlur = 0;
+        contexto.fillStyle = "#00ffff";
+        contexto.shadowBlur = 15;
+        contexto.shadowColor = "#00ffff";
+        contexto.fillRect(jugador.x, jugador.y, jugador.w, jugador.h);
+        contexto.shadowBlur = 0;
         
         // Detalles de la nave
-        ctx.fillStyle = "white";
-        ctx.fillRect(player.x + 15, player.y, 10, 10);
-        ctx.fillRect(player.x + 5, player.y + 15, 30, 10);
+        contexto.fillStyle = "white";
+        contexto.fillRect(jugador.x + 15, jugador.y, 10, 10);
+        contexto.fillRect(jugador.x + 5, jugador.y + 15, 30, 10);
     }
 
     // Dibujar disparos
-    ctx.fillStyle = "yellow";
-    bullets.forEach(b => {
-        ctx.fillRect(b.x, b.y, b.w, b.h);
+    contexto.fillStyle = "yellow";
+    balas.forEach(b => {
+        contexto.fillRect(b.x, b.y, b.w, b.h);
         // Efecto de luz
-        ctx.fillStyle = "rgba(255, 255, 200, 0.5)";
-        ctx.fillRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
-        ctx.fillStyle = "yellow";
+        contexto.fillStyle = "rgba(255, 255, 200, 0.5)";
+        contexto.fillRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
+        contexto.fillStyle = "yellow";
     });
 
     // Dibujar enemigos
-    ctx.fillStyle = "red";
-    enemies.forEach(e => {
-        ctx.fillRect(e.x, e.y, e.w, e.h);
+    contexto.fillStyle = "red";
+    enemigos.forEach(e => {
+        contexto.fillRect(e.x, e.y, e.w, e.h);
         
         // Detalles según estado
-        ctx.fillStyle = e.state === 'diving' ? "#ff4444" : "darkred";
-        ctx.fillRect(e.x + 5, e.y + 5, e.w - 10, e.h - 10);
-        ctx.fillStyle = "red";
+        contexto.fillStyle = e.estado === 'picada' ? "#ff4444" : "darkred";
+        contexto.fillRect(e.x + 5, e.y + 5, e.w - 10, e.h - 10);
+        contexto.fillStyle = "red";
     });
 
     // Dibujar jefe
-    if (boss) {
-        ctx.fillStyle = "magenta";
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = "magenta";
-        ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
-        ctx.shadowBlur = 0;
+    if (jefe) {
+        contexto.fillStyle = "magenta";
+        contexto.shadowBlur = 20;
+        contexto.shadowColor = "magenta";
+        contexto.fillRect(jefe.x, jefe.y, jefe.w, jefe.h);
+        contexto.shadowBlur = 0;
         
         // Detalles del jefe
-        ctx.fillStyle = "purple";
-        ctx.fillRect(boss.x + 10, boss.y + 10, boss.w - 20, boss.h - 20);
+        contexto.fillStyle = "purple";
+        contexto.fillRect(jefe.x + 10, jefe.y + 10, jefe.w - 20, jefe.h - 20);
         
         // Barra de salud
-        const healthWidth = (boss.w * boss.health) / boss.maxHealth;
-        ctx.fillStyle = "red";
-        ctx.fillRect(boss.x, boss.y - 10, boss.w, 5);
-        ctx.fillStyle = "green";
-        ctx.fillRect(boss.x, boss.y - 10, healthWidth, 5);
+        const anchoSalud = (jefe.w * jefe.salud) / jefe.saludMaxima;
+        contexto.fillStyle = "red";
+        contexto.fillRect(jefe.x, jefe.y - 10, jefe.w, 5);
+        contexto.fillStyle = "green";
+        contexto.fillRect(jefe.x, jefe.y - 10, anchoSalud, 5);
         
         // Dibujar haz tractor
-        if (boss.tractorBeam.active) {
-            const gradient = ctx.createLinearGradient(
-                boss.tractorBeam.x, boss.tractorBeam.y, 
-                boss.tractorBeam.x, boss.tractorBeam.y + boss.tractorBeam.height
+        if (jefe.hazTractor.activo) {
+            const gradiente = contexto.createLinearGradient(
+                jefe.hazTractor.x, jefe.hazTractor.y, 
+                jefe.hazTractor.x, jefe.hazTractor.y + jefe.hazTractor.alto
             );
-            gradient.addColorStop(0, "rgba(0, 255, 255, 0.8)");
-            gradient.addColorStop(1, "rgba(0, 100, 255, 0.3)");
+            gradiente.addColorStop(0, "rgba(0, 255, 255, 0.8)");
+            gradiente.addColorStop(1, "rgba(0, 100, 255, 0.3)");
             
-            ctx.fillStyle = gradient;
-            ctx.fillRect(
-                boss.tractorBeam.x, 
-                boss.tractorBeam.y, 
-                boss.tractorBeam.width, 
-                boss.tractorBeam.height
+            contexto.fillStyle = gradiente;
+            contexto.fillRect(
+                jefe.hazTractor.x, 
+                jefe.hazTractor.y, 
+                jefe.hazTractor.ancho, 
+                jefe.hazTractor.alto
             );
             
             // Efecto de partículas
-            if (boss.tractorBeam.targetPlayer) {
-                ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+            if (jefe.hazTractor.objetivoJugador) {
+                contexto.fillStyle = "rgba(255, 255, 255, 0.7)";
                 for (let i = 0; i < 5; i++) {
-                    const offsetX = Math.sin(gameTime * 0.1 + i) * 5;
-                    const yPos = boss.tractorBeam.y + (gameTime + i * 20) % boss.tractorBeam.height;
-                    ctx.fillRect(
-                        boss.tractorBeam.x + boss.tractorBeam.width/2 - 1 + offsetX, 
-                        yPos, 
+                    const desplazamientoX = Math.sin(tiempoJuego * 0.1 + i) * 5;
+                    const posY = jefe.hazTractor.y + (tiempoJuego + i * 20) % jefe.hazTractor.alto;
+                    contexto.fillRect(
+                        jefe.hazTractor.x + jefe.hazTractor.ancho/2 - 1 + desplazamientoX, 
+                        posY, 
                         2, 
                         2
                     );
@@ -603,107 +603,107 @@ function draw() {
     }
     
     // Dibujar game over
-    if (gameState.gameOver) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    if (estadoJuego.juegoTerminado) {
+        contexto.fillStyle = "rgba(0, 0, 0, 0.7)";
+        contexto.fillRect(0, 0, ANCHO, ALTO);
         
-        ctx.fillStyle = "red";
-        ctx.font = "28px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("GAME OVER", WIDTH/2, HEIGHT/2 - 20);
+        contexto.fillStyle = "red";
+        contexto.font = "28px Arial";
+        contexto.textAlign = "center";
+        contexto.fillText("GAME OVER", ANCHO/2, ALTO/2 - 20);
         
-        ctx.fillStyle = "white";
-        ctx.font = "18px Arial";
-        ctx.fillText(`Puntuación: ${gameState.score}`, WIDTH/2, HEIGHT/2 + 20);
-        ctx.fillText("Presiona 'Jugar de Nuevo' para continuar", WIDTH/2, HEIGHT/2 + 50);
+        contexto.fillStyle = "white";
+        contexto.font = "18px Arial";
+        contexto.fillText(`Puntuación: ${estadoJuego.puntuacion}`, ANCHO/2, ALTO/2 + 20);
+        contexto.fillText("Presiona 'Jugar de Nuevo' para continuar", ANCHO/2, ALTO/2 + 50);
     }
 }
 
 // Bucle principal del juego
-function gameLoop() {
-    if (gameActive) {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
+function bucleJuego() {
+    if (juegoActivo) {
+        actualizar();
+        dibujar();
+        requestAnimationFrame(bucleJuego);
     }
 }
 
 // Funciones auxiliares
-function loseLife() {
-    if (player.invulnerable > 0) return;
+function perderVida() {
+    if (jugador.invulnerable > 0) return;
     
-    gameState.lives--;
-    updateUI();
+    estadoJuego.vidas--;
+    actualizarUI();
     
-    if (gameState.lives <= 0) {
-        gameOver();
+    if (estadoJuego.vidas <= 0) {
+        juegoTerminado();
     } else {
-        player.invulnerable = 180;
-        player.x = WIDTH/2 - 20;
-        player.y = HEIGHT - 60;
+        jugador.invulnerable = 180;
+        jugador.x = ANCHO/2 - 20;
+        jugador.y = ALTO - 60;
         
-        if (boss && boss.tractorBeam) {
-            boss.tractorBeam.active = false;
-            boss.tractorBeam.targetPlayer = false;
+        if (jefe && jefe.hazTractor) {
+            jefe.hazTractor.activo = false;
+            jefe.hazTractor.objetivoJugador = false;
         }
     }
 }
 
-function updateUI() {
-    document.getElementById("lives").textContent = gameState.lives;
-    document.getElementById("score").textContent = gameState.score;
-    document.getElementById("level").textContent = gameState.level;
-    document.getElementById("enemiesCount").textContent = enemies.length;
-    document.getElementById("bossStatus").textContent = boss ? "Sí" : "No";
-    document.getElementById("highScore").textContent = gameState.highScore;
+function actualizarUI() {
+    document.getElementById("vidas").textContent = estadoJuego.vidas;
+    document.getElementById("puntuacion").textContent = estadoJuego.puntuacion;
+    document.getElementById("nivel").textContent = estadoJuego.nivel;
+    document.getElementById("contadorEnemigos").textContent = enemigos.length;
+    document.getElementById("estadoJefe").textContent = jefe ? "Sí" : "No";
+    document.getElementById("puntuacionMaxima").textContent = estadoJuego.puntuacionMaxima;
 }
 
-function updateHighScore() {
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem('galagaHighScore', gameState.highScore);
+function actualizarPuntuacionMaxima() {
+    if (estadoJuego.puntuacion > estadoJuego.puntuacionMaxima) {
+        estadoJuego.puntuacionMaxima = estadoJuego.puntuacion;
+        localStorage.setItem('galagaHighScore', estadoJuego.puntuacionMaxima);
     }
 }
 
 // Pausar/reanudar juego
-function togglePause() {
-    if (!gameActive) return;
+function alternarPausa() {
+    if (!juegoActivo) return;
     
-    gamePaused = !gamePaused;
-    const pauseScreen = document.getElementById("pauseScreen");
-    const pauseBtn = document.getElementById("pauseBtn");
+    juegoPausado = !juegoPausado;
+    const pantallaPausa = document.getElementById("pantallaPausa");
+    const botonPausa = document.getElementById("botonPausa");
     
-    if (gamePaused) {
-        pauseScreen.style.display = "flex";
-        pauseBtn.textContent = "REANUDAR";
+    if (juegoPausado) {
+        pantallaPausa.style.display = "flex";
+        botonPausa.textContent = "REANUDAR";
     } else {
-        pauseScreen.style.display = "none";
-        pauseBtn.textContent = "PAUSAR";
+        pantallaPausa.style.display = "none";
+        botonPausa.textContent = "PAUSAR";
     }
 }
 
 // Reiniciar juego
-function restartGame() {
-    document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("pauseScreen").style.display = "none";
-    startGame();
+function reiniciarJuego() {
+    document.getElementById("pantallaGameOver").style.display = "none";
+    document.getElementById("pantallaPausa").style.display = "none";
+    comenzarJuego();
 }
 
 // Game over
-function gameOver() {
-    gameActive = false;
-    updateHighScore();
+function juegoTerminado() {
+    juegoActivo = false;
+    actualizarPuntuacionMaxima();
     
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const finalScore = document.getElementById("finalScore");
-    const finalLevel = document.getElementById("finalLevel");
-    const finalEnemies = document.getElementById("finalEnemies");
+    const pantallaGameOver = document.getElementById("pantallaGameOver");
+    const puntuacionFinal = document.getElementById("puntuacionFinal");
+    const nivelFinal = document.getElementById("nivelFinal");
+    const enemigosFinales = document.getElementById("enemigosFinales");
     
-    finalScore.textContent = gameState.score;
-    finalLevel.textContent = gameState.level;
-    finalEnemies.textContent = gameState.enemiesDestroyed;
+    puntuacionFinal.textContent = estadoJuego.puntuacion;
+    nivelFinal.textContent = estadoJuego.nivel;
+    enemigosFinales.textContent = estadoJuego.enemigosDestruidos;
     
     setTimeout(() => {
-        gameOverScreen.style.display = "flex";
+        pantallaGameOver.style.display = "flex";
     }, 500);
 }

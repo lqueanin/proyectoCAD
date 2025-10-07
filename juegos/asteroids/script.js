@@ -1,7 +1,7 @@
 // Inicialización del juego
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    initGame();
+    crearParticulas();
+    inicializarJuego();
 });
 
 // =============================================
@@ -41,83 +41,83 @@ function aplicarTraslacionConPantallaEnvolvente(objeto, dx, dy, anchoPantalla, a
 }
 
 // Sistema de partículas
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 50;
+function crearParticulas() {
+    const contenedorParticulas = document.getElementById('particles');
+    const cantidadParticulas = 50;
     
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
+    for (let i = 0; i < cantidadParticulas; i++) {
+        const particula = document.createElement('div');
+        particula.classList.add('particle');
         
-        const left = Math.random() * 100;
-        const delay = Math.random() * 15;
-        const duration = 10 + Math.random() * 10;
+        const izquierda = Math.random() * 100;
+        const retraso = Math.random() * 15;
+        const duracion = 10 + Math.random() * 10;
         
-        particle.style.left = `${left}%`;
-        particle.style.animationDelay = `${delay}s`;
-        particle.style.animationDuration = `${duration}s`;
+        particula.style.left = `${izquierda}%`;
+        particula.style.animationDelay = `${retraso}s`;
+        particula.style.animationDuration = `${duracion}s`;
         
-        const colors = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.backgroundColor = randomColor;
+        const colores = ['var(--neon-pink)', 'var(--neon-blue)', 'var(--neon-green)', 'var(--neon-yellow)'];
+        const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+        particula.style.backgroundColor = colorAleatorio;
         
-        const size = 1 + Math.random() * 2;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
+        const tamaño = 1 + Math.random() * 2;
+        particula.style.width = `${tamaño}px`;
+        particula.style.height = `${tamaño}px`;
         
-        particlesContainer.appendChild(particle);
+        contenedorParticulas.appendChild(particula);
     }
 }
 
 // Variables del juego
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const lienzo = document.getElementById("lienzoJuego");
+const contexto = lienzo.getContext("2d");
 
 // Configuración del canvas
-canvas.width = 800;
-canvas.height = 600;
+lienzo.width = 800;
+lienzo.height = 600;
 
 // Estado del juego
-let gameState = {
-    score: 0,
-    level: 1,
-    asteroidsDestroyed: 0,
-    highScore: localStorage.getItem('asteroidsHighScore') || 0,
-    gameOver: false
+let estadoJuego = {
+    puntuacion: 0,
+    nivel: 1,
+    asteroidesDestruidos: 0,
+    puntuacionMaxima: localStorage.getItem('asteroidsHighScore') || 0,
+    juegoTerminado: false
 };
 
 // Elementos del juego
-let ship, bullets, asteroids;
-let gameActive = false;
-let gamePaused = false;
+let nave, balas, asteroides;
+let juegoActivo = false;
+let juegoPausado = false;
 
 // Control de teclado
-const keys = {};
+const teclas = {};
 document.addEventListener("keydown", e => {
-    keys[e.key] = true;
+    teclas[e.key] = true;
     if (e.key === ' ') e.preventDefault();
 });
-document.addEventListener("keyup", e => keys[e.key] = false);
+document.addEventListener("keyup", e => teclas[e.key] = false);
 
 // Inicializar juego
-function initGame() {
+function inicializarJuego() {
     // Botón de inicio
-    const startBtn = document.getElementById("startBtn");
-    const startScreen = document.getElementById("startScreen");
-    const gameContent = document.querySelector(".game-content");
+    const botonInicio = document.getElementById("botonInicio");
+    const pantallaInicio = document.getElementById("pantallaInicio");
+    const contenidoJuego = document.querySelector(".contenidoJuego");
     
-    startBtn.addEventListener("click", function() {
-        startScreen.style.display = "none";
-        gameContent.style.display = "block";
-        startGame();
+    botonInicio.addEventListener("click", function() {
+        pantallaInicio.style.display = "none";
+        contenidoJuego.style.display = "block";
+        comenzarJuego();
     });
 
     // Botones de control
-    document.getElementById("pauseBtn").addEventListener("click", togglePause);
-    document.getElementById("restartBtn").addEventListener("click", restartGame);
-    document.getElementById("resumeBtn").addEventListener("click", togglePause);
-    document.getElementById("playAgainBtn").addEventListener("click", restartGame);
-    document.getElementById("mainMenuBtn").addEventListener("click", () => {
+    document.getElementById("botonPausa").addEventListener("click", alternarPausa);
+    document.getElementById("botonReiniciar").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonReanudar").addEventListener("click", alternarPausa);
+    document.getElementById("botonJugarOtraVez").addEventListener("click", reiniciarJuego);
+    document.getElementById("botonMenuPrincipal").addEventListener("click", () => {
         window.location.href = "../../index.html";
     });
 
@@ -128,73 +128,73 @@ function initGame() {
         }
     });
 
-    updateHighScore();
+    actualizarPuntuacionMaxima();
 }
 
 // Iniciar juego
-function startGame() {
-    gameState = {
-        score: 0,
-        level: 1,
-        asteroidsDestroyed: 0,
-        highScore: localStorage.getItem('asteroidsHighScore') || 0,
-        gameOver: false
+function comenzarJuego() {
+    estadoJuego = {
+        puntuacion: 0,
+        nivel: 1,
+        asteroidesDestruidos: 0,
+        puntuacionMaxima: localStorage.getItem('asteroidsHighScore') || 0,
+        juegoTerminado: false
     };
     
-    ship = {
-        x: canvas.width / 2,
-        y: canvas.height / 2,
-        angle: 0,
+    nave = {
+        x: lienzo.width / 2,
+        y: lienzo.height / 2,
+        angulo: 0,
         vx: 0,
         vy: 0,
-        radius: 15,
-        thrust: false
+        radio: 15,
+        propulsor: false
     };
     
-    bullets = [];
-    asteroids = [];
+    balas = [];
+    asteroides = [];
     
-    gameActive = true;
-    gamePaused = false;
+    juegoActivo = true;
+    juegoPausado = false;
     
-    spawnAsteroids(6);
-    updateUI();
-    gameLoop();
+    generarAsteroides(6);
+    actualizarUI();
+    bucleJuego();
 }
 
 // Generar asteroides
-function spawnAsteroids(n) {
+function generarAsteroides(n) {
     for (let i = 0; i < n; i++) {
         let x, y;
         if (Math.random() < 0.5) {
-            x = Math.random() * canvas.width;
-            y = Math.random() < 0.5 ? 0 : canvas.height;
+            x = Math.random() * lienzo.width;
+            y = Math.random() < 0.5 ? 0 : lienzo.height;
         } else {
-            x = Math.random() < 0.5 ? 0 : canvas.width;
-            y = Math.random() * canvas.height;
+            x = Math.random() < 0.5 ? 0 : lienzo.width;
+            y = Math.random() * lienzo.height;
         }
-        const angle = Math.random() * Math.PI * 2;
-        asteroids.push({
+        const angulo = Math.random() * Math.PI * 2;
+        asteroides.push({
             x, y,
-            radius: 40 + Math.random() * 20,
-            vx: Math.cos(angle) * (0.5 + Math.random() * 1.5),
-            vy: Math.sin(angle) * (0.5 + Math.random() * 1.5),
-            vertices: generateAsteroidVertices()
+            radio: 40 + Math.random() * 20,
+            vx: Math.cos(angulo) * (0.5 + Math.random() * 1.5),
+            vy: Math.sin(angulo) * (0.5 + Math.random() * 1.5),
+            vertices: generarVerticesAsteroide()
         });
     }
 }
 
 // Generar vértices para asteroides irregulares
-function generateAsteroidVertices() {
+function generarVerticesAsteroide() {
     const vertices = [];
     const numVertices = 8 + Math.floor(Math.random() * 4);
     
     for (let i = 0; i < numVertices; i++) {
-        const angle = (i / numVertices) * Math.PI * 2;
-        const distance = 0.7 + Math.random() * 0.3;
+        const angulo = (i / numVertices) * Math.PI * 2;
+        const distancia = 0.7 + Math.random() * 0.3;
         vertices.push({
-            angle,
-            distance
+            angulo,
+            distancia
         });
     }
     
@@ -202,164 +202,164 @@ function generateAsteroidVertices() {
 }
 
 // Dibujar nave
-function drawShip() {
-    ctx.save();
-    ctx.translate(ship.x, ship.y);
-    ctx.rotate(ship.angle);
+function dibujarNave() {
+    contexto.save();
+    contexto.translate(nave.x, nave.y);
+    contexto.rotate(nave.angulo);
     
     // Nave principal con efecto neón
-    ctx.strokeStyle = "#00ffff";
-    ctx.lineWidth = 2;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = "#00ffff";
+    contexto.strokeStyle = "#00ffff";
+    contexto.lineWidth = 2;
+    contexto.shadowBlur = 15;
+    contexto.shadowColor = "#00ffff";
     
-    ctx.beginPath();
-    ctx.moveTo(20, 0);
-    ctx.lineTo(-15, 10);
-    ctx.lineTo(-15, -10);
-    ctx.closePath();
-    ctx.stroke();
+    contexto.beginPath();
+    contexto.moveTo(20, 0);
+    contexto.lineTo(-15, 10);
+    contexto.lineTo(-15, -10);
+    contexto.closePath();
+    contexto.stroke();
     
     // Efecto de propulsión
-    if (ship.thrust) {
-        ctx.strokeStyle = "#ff5500";
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = "#ff5500";
+    if (nave.propulsor) {
+        contexto.strokeStyle = "#ff5500";
+        contexto.shadowBlur = 20;
+        contexto.shadowColor = "#ff5500";
         
-        ctx.beginPath();
-        ctx.moveTo(-15, 8);
-        ctx.lineTo(-25 - Math.random() * 10, 0);
-        ctx.lineTo(-15, -8);
-        ctx.stroke();
+        contexto.beginPath();
+        contexto.moveTo(-15, 8);
+        contexto.lineTo(-25 - Math.random() * 10, 0);
+        contexto.lineTo(-15, -8);
+        contexto.stroke();
     }
     
-    ctx.shadowBlur = 0;
-    ctx.restore();
+    contexto.shadowBlur = 0;
+    contexto.restore();
 }
 
 // Dibujar asteroides
-function drawAsteroids() {
-    asteroids.forEach(asteroid => {
-        ctx.save();
-        ctx.translate(asteroid.x, asteroid.y);
+function dibujarAsteroides() {
+    asteroides.forEach(asteroide => {
+        contexto.save();
+        contexto.translate(asteroide.x, asteroide.y);
         
         // Asteroide con efecto neón
-        ctx.strokeStyle = "#39ff14";
-        ctx.lineWidth = 2;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#39ff14";
+        contexto.strokeStyle = "#39ff14";
+        contexto.lineWidth = 2;
+        contexto.shadowBlur = 10;
+        contexto.shadowColor = "#39ff14";
         
-        ctx.beginPath();
-        asteroid.vertices.forEach((vertex, index) => {
-            const x = Math.cos(vertex.angle) * asteroid.radius * vertex.distance;
-            const y = Math.sin(vertex.angle) * asteroid.radius * vertex.distance;
+        contexto.beginPath();
+        asteroide.vertices.forEach((vertice, indice) => {
+            const x = Math.cos(vertice.angulo) * asteroide.radio * vertice.distancia;
+            const y = Math.sin(vertice.angulo) * asteroide.radio * vertice.distancia;
             
-            if (index === 0) {
-                ctx.moveTo(x, y);
+            if (indice === 0) {
+                contexto.moveTo(x, y);
             } else {
-                ctx.lineTo(x, y);
+                contexto.lineTo(x, y);
             }
         });
-        ctx.closePath();
-        ctx.stroke();
+        contexto.closePath();
+        contexto.stroke();
         
-        ctx.shadowBlur = 0;
-        ctx.restore();
+        contexto.shadowBlur = 0;
+        contexto.restore();
     });
 }
 
 // Dibujar balas
-function drawBullets() {
-    ctx.fillStyle = "#ffff00";
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = "#ffff00";
+function dibujarBalas() {
+    contexto.fillStyle = "#ffff00";
+    contexto.shadowBlur = 8;
+    contexto.shadowColor = "#ffff00";
     
-    bullets.forEach(bullet => {
-        ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, 3, 0, Math.PI * 2);
-        ctx.fill();
+    balas.forEach(bala => {
+        contexto.beginPath();
+        contexto.arc(bala.x, bala.y, 3, 0, Math.PI * 2);
+        contexto.fill();
     });
     
-    ctx.shadowBlur = 0;
+    contexto.shadowBlur = 0;
 }
 
 // =============================================
 // MOVER NAVE CON TRASLACIONES GEOMÉTRICAS
 // =============================================
-function moveShip() {
-    if (keys["ArrowLeft"]) ship.angle -= 0.07;
-    if (keys["ArrowRight"]) ship.angle += 0.07;
+function moverNave() {
+    if (teclas["ArrowLeft"]) nave.angulo -= 0.07;
+    if (teclas["ArrowRight"]) nave.angulo += 0.07;
     
-    ship.thrust = false;
-    if (keys["ArrowUp"]) {
+    nave.propulsor = false;
+    if (teclas["ArrowUp"]) {
         // =============================================
         // TRASLACIÓN CON ACELERACIÓN: P' = P + (aceleración * cos(θ), aceleración * sin(θ))
         // =============================================
         const aceleracion = 0.1;
         const vectorAceleracion = {
-            dx: Math.cos(ship.angle) * aceleracion,
-            dy: Math.sin(ship.angle) * aceleracion
+            dx: Math.cos(nave.angulo) * aceleracion,
+            dy: Math.sin(nave.angulo) * aceleracion
         };
         
-        ship.vx += vectorAceleracion.dx;
-        ship.vy += vectorAceleracion.dy;
-        ship.thrust = true;
+        nave.vx += vectorAceleracion.dx;
+        nave.vy += vectorAceleracion.dy;
+        nave.propulsor = true;
     }
 
     // Aplicar fricción
-    ship.vx *= 0.98;
-    ship.vy *= 0.98;
+    nave.vx *= 0.98;
+    nave.vy *= 0.98;
 
     // =============================================
     // TRASLACIÓN CON PANTALLA ENVOLVENTE: P' = P + (vx, vy) con wraparound
     // =============================================
     const nuevaPos = aplicarTraslacionConPantallaEnvolvente(
-        ship, 
-        ship.vx, 
-        ship.vy, 
-        canvas.width, 
-        canvas.height
+        nave, 
+        nave.vx, 
+        nave.vy, 
+        lienzo.width, 
+        lienzo.height
     );
-    ship.x = nuevaPos.x;
-    ship.y = nuevaPos.y;
+    nave.x = nuevaPos.x;
+    nave.y = nuevaPos.y;
 }
 
 // =============================================
 // MOVER ASTEROIDES CON TRASLACIONES GEOMÉTRICAS
 // =============================================
-function moveAsteroids() {
-    asteroids.forEach(asteroid => {
+function moverAsteroides() {
+    asteroides.forEach(asteroide => {
         // =============================================
         // TRASLACIÓN LINEAL CON PANTALLA ENVOLVENTE
         // =============================================
         const nuevaPos = aplicarTraslacionConPantallaEnvolvente(
-            asteroid,
-            asteroid.vx,
-            asteroid.vy,
-            canvas.width,
-            canvas.height
+            asteroide,
+            asteroide.vx,
+            asteroide.vy,
+            lienzo.width,
+            lienzo.height
         );
-        asteroid.x = nuevaPos.x;
-        asteroid.y = nuevaPos.y;
+        asteroide.x = nuevaPos.x;
+        asteroide.y = nuevaPos.y;
     });
 }
 
 // =============================================
 // MOVER BALAS CON TRASLACIONES GEOMÉTRICAS
 // =============================================
-function moveBullets() {
-    bullets.forEach(bullet => {
+function moverBalas() {
+    balas.forEach(bala => {
         // =============================================
         // TRASLACIÓN LINEAL DE BALAS: P' = P + (vx, vy)
         // =============================================
-        const nuevaPos = aplicarTraslacion(bullet, bullet.vx, bullet.vy);
-        bullet.x = nuevaPos.x;
-        bullet.y = nuevaPos.y;
+        const nuevaPos = aplicarTraslacion(bala, bala.vx, bala.vy);
+        bala.x = nuevaPos.x;
+        bala.y = nuevaPos.y;
     });
     
     // Eliminar balas fuera de pantalla
-    bullets = bullets.filter(bullet =>
-        bullet.x >= 0 && bullet.x <= canvas.width && bullet.y >= 0 && bullet.y <= canvas.height
+    balas = balas.filter(bala =>
+        bala.x >= 0 && bala.x <= lienzo.width && bala.y >= 0 && bala.y <= lienzo.height
     );
 }
 
@@ -367,191 +367,191 @@ function moveBullets() {
 // DISPARAR CON TRASLACIÓN INICIAL
 // =============================================
 document.addEventListener("keydown", e => {
-    if (e.code === "Space" && gameActive && !gamePaused) {
+    if (e.code === "Space" && juegoActivo && !juegoPausado) {
         // =============================================
         // POSICIÓN INICIAL DE BALA: P' = P_nave + (20 * cos(θ), 20 * sin(θ))
         // =============================================
         const posicionInicial = aplicarTraslacionConAngulo(
-            ship,
+            nave,
             20, // distancia desde la nave
-            ship.angle
+            nave.angulo
         );
         
-        bullets.push({
+        balas.push({
             x: posicionInicial.x,
             y: posicionInicial.y,
-            vx: Math.cos(ship.angle) * 6,
-            vy: Math.sin(ship.angle) * 6
+            vx: Math.cos(nave.angulo) * 6,
+            vy: Math.sin(nave.angulo) * 6
         });
     }
 });
 
-function splitAsteroid(asteroid) {
-    if (asteroid.radius > 15) {
+function dividirAsteroide(asteroide) {
+    if (asteroide.radio > 15) {
         for (let i = 0; i < 2; i++) {
-            const angle = Math.random() * Math.PI * 2;
+            const angulo = Math.random() * Math.PI * 2;
             const velocidadFragmento = 1.5 + Math.random();
             const fragmento = {
-                x: asteroid.x,
-                y: asteroid.y,
-                radius: asteroid.radius / 2,
-                vx: Math.cos(angle) * velocidadFragmento,
-                vy: Math.sin(angle) * velocidadFragmento,
-                vertices: generateAsteroidVertices()
+                x: asteroide.x,
+                y: asteroide.y,
+                radio: asteroide.radio / 2,
+                vx: Math.cos(angulo) * velocidadFragmento,
+                vy: Math.sin(angulo) * velocidadFragmento,
+                vertices: generarVerticesAsteroide()
             };
             
-            asteroids.push(fragmento);
+            asteroides.push(fragmento);
         }
     }
 }
 
 // Detectar colisiones
-function detectCollisions() {
+function detectarColisiones() {
     // Balas -> Asteroides
-    for (let ai = asteroids.length - 1; ai >= 0; ai--) {
-        for (let bi = bullets.length - 1; bi >= 0; bi--) {
-            const asteroid = asteroids[ai];
-            const bullet = bullets[bi];
-            const dx = asteroid.x - bullet.x;
-            const dy = asteroid.y - bullet.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+    for (let ai = asteroides.length - 1; ai >= 0; ai--) {
+        for (let bi = balas.length - 1; bi >= 0; bi--) {
+            const asteroide = asteroides[ai];
+            const bala = balas[bi];
+            const dx = asteroide.x - bala.x;
+            const dy = asteroide.y - bala.y;
+            const distancia = Math.sqrt(dx * dx + dy * dy);
             
-            if (dist < asteroid.radius) {
-                bullets.splice(bi, 1);
-                asteroids.splice(ai, 1);
-                splitAsteroid(asteroid);
+            if (distancia < asteroide.radio) {
+                balas.splice(bi, 1);
+                asteroides.splice(ai, 1);
+                dividirAsteroide(asteroide);
                 
-                gameState.score += 10;
-                gameState.asteroidsDestroyed++;
-                updateUI();
+                estadoJuego.puntuacion += 10;
+                estadoJuego.asteroidesDestruidos++;
+                actualizarUI();
                 break;
             }
         }
     }
 
     // Nave -> Asteroides
-    if (!gameState.gameOver) {
-        asteroids.forEach(asteroid => {
-            const dx = asteroid.x - ship.x;
-            const dy = asteroid.y - ship.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+    if (!estadoJuego.juegoTerminado) {
+        asteroides.forEach(asteroide => {
+            const dx = asteroide.x - nave.x;
+            const dy = asteroide.y - nave.y;
+            const distancia = Math.sqrt(dx * dx + dy * dy);
             
-            if (dist < asteroid.radius + ship.radius) {
-                gameOver();
+            if (distancia < asteroide.radio + nave.radio) {
+                juegoTerminado();
             }
         });
     }
 }
 
 // Bucle principal del juego
-function gameLoop() {
-    if (!gameActive) return;
+function bucleJuego() {
+    if (!juegoActivo) return;
     
     // Fondo del espacio
-    ctx.fillStyle = "#000011";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    contexto.fillStyle = "#000011";
+    contexto.fillRect(0, 0, lienzo.width, lienzo.height);
     
     // Estrellas de fondo
-    drawStars();
+    dibujarEstrellas();
     
-    if (!gamePaused && !gameState.gameOver) {
-        moveShip();
-        moveAsteroids();
-        moveBullets();
-        detectCollisions();
+    if (!juegoPausado && !estadoJuego.juegoTerminado) {
+        moverNave();
+        moverAsteroides();
+        moverBalas();
+        detectarColisiones();
         
         // Comprobar nivel completado
-        if (asteroids.length === 0) {
-            gameState.level++;
-            spawnAsteroids(6 + gameState.level);
-            updateUI();
+        if (asteroides.length === 0) {
+            estadoJuego.nivel++;
+            generarAsteroides(6 + estadoJuego.nivel);
+            actualizarUI();
         }
     }
     
-    drawAsteroids();
-    drawBullets();
-    drawShip();
+    dibujarAsteroides();
+    dibujarBalas();
+    dibujarNave();
     
-    updateUI();
-    requestAnimationFrame(gameLoop);
+    actualizarUI();
+    requestAnimationFrame(bucleJuego);
 }
 
 // Dibujar estrellas de fondo
-function drawStars() {
-    ctx.fillStyle = "white";
+function dibujarEstrellas() {
+    contexto.fillStyle = "white";
     for (let i = 0; i < 100; i++) {
-        const x = (i * 127) % canvas.width;
-        const y = (i * 251) % canvas.height;
-        const size = (i % 3) + 1;
-        const opacity = 0.3 + Math.random() * 0.7;
+        const x = (i * 127) % lienzo.width;
+        const y = (i * 251) % lienzo.height;
+        const tamaño = (i % 3) + 1;
+        const opacidad = 0.3 + Math.random() * 0.7;
         
-        ctx.globalAlpha = opacity;
-        ctx.fillRect(x, y, size, size);
+        contexto.globalAlpha = opacidad;
+        contexto.fillRect(x, y, tamaño, tamaño);
     }
-    ctx.globalAlpha = 1;
+    contexto.globalAlpha = 1;
 }
 
 // Actualizar interfaz
-function updateUI() {
-    document.getElementById("score").textContent = gameState.score;
-    document.getElementById("level").textContent = gameState.level;
-    document.getElementById("asteroidsCount").textContent = asteroids.length;
-    document.getElementById("bulletsCount").textContent = bullets.length;
-    document.getElementById("highScore").textContent = gameState.highScore;
+function actualizarUI() {
+    document.getElementById("puntuacion").textContent = estadoJuego.puntuacion;
+    document.getElementById("nivel").textContent = estadoJuego.nivel;
+    document.getElementById("contadorAsteroides").textContent = asteroides.length;
+    document.getElementById("contadorBalas").textContent = balas.length;
+    document.getElementById("puntuacionMaxima").textContent = estadoJuego.puntuacionMaxima;
     
     // Calcular velocidad de la nave
-    const speed = Math.sqrt(ship.vx * ship.vx + ship.vy * ship.vy).toFixed(1);
-    document.getElementById("speedValue").textContent = speed;
+    const velocidad = Math.sqrt(nave.vx * nave.vx + nave.vy * nave.vy).toFixed(1);
+    document.getElementById("valorVelocidad").textContent = velocidad;
 }
 
-// Actualizar high score
-function updateHighScore() {
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem('asteroidsHighScore', gameState.highScore);
+// Actualizar puntuación máxima
+function actualizarPuntuacionMaxima() {
+    if (estadoJuego.puntuacion > estadoJuego.puntuacionMaxima) {
+        estadoJuego.puntuacionMaxima = estadoJuego.puntuacion;
+        localStorage.setItem('asteroidsHighScore', estadoJuego.puntuacionMaxima);
     }
 }
 
 // Pausar/reanudar juego
-function togglePause() {
-    if (!gameActive) return;
+function alternarPausa() {
+    if (!juegoActivo) return;
     
-    gamePaused = !gamePaused;
-    const pauseScreen = document.getElementById("pauseScreen");
-    const pauseBtn = document.getElementById("pauseBtn");
+    juegoPausado = !juegoPausado;
+    const pantallaPausa = document.getElementById("pantallaPausa");
+    const botonPausa = document.getElementById("botonPausa");
     
-    if (gamePaused) {
-        pauseScreen.style.display = "flex";
-        pauseBtn.textContent = "REANUDAR";
+    if (juegoPausado) {
+        pantallaPausa.style.display = "flex";
+        botonPausa.textContent = "REANUDAR";
     } else {
-        pauseScreen.style.display = "none";
-        pauseBtn.textContent = "PAUSAR";
+        pantallaPausa.style.display = "none";
+        botonPausa.textContent = "PAUSAR";
     }
 }
 
 // Reiniciar juego
-function restartGame() {
-    document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("pauseScreen").style.display = "none";
-    startGame();
+function reiniciarJuego() {
+    document.getElementById("pantallaGameOver").style.display = "none";
+    document.getElementById("pantallaPausa").style.display = "none";
+    comenzarJuego();
 }
 
 // Game over
-function gameOver() {
-    gameState.gameOver = true;
-    gameActive = false;
-    updateHighScore();
+function juegoTerminado() {
+    estadoJuego.juegoTerminado = true;
+    juegoActivo = false;
+    actualizarPuntuacionMaxima();
     
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const finalScore = document.getElementById("finalScore");
-    const finalLevel = document.getElementById("finalLevel");
-    const finalAsteroids = document.getElementById("finalAsteroids");
+    const pantallaGameOver = document.getElementById("pantallaGameOver");
+    const puntuacionFinal = document.getElementById("puntuacionFinal");
+    const nivelFinal = document.getElementById("nivelFinal");
+    const asteroidesFinales = document.getElementById("asteroidesFinales");
     
-    finalScore.textContent = gameState.score;
-    finalLevel.textContent = gameState.level;
-    finalAsteroids.textContent = gameState.asteroidsDestroyed;
+    puntuacionFinal.textContent = estadoJuego.puntuacion;
+    nivelFinal.textContent = estadoJuego.nivel;
+    asteroidesFinales.textContent = estadoJuego.asteroidesDestruidos;
     
     setTimeout(() => {
-        gameOverScreen.style.display = "flex";
+        pantallaGameOver.style.display = "flex";
     }, 500);
 }

@@ -8,12 +8,8 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Efecto de línea de escaneo -->
   <div class="scan-line"></div>
-  
-  <!-- Efecto de partículas -->
   <div class="particles" id="particles"></div>
-
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
       <a class="navbar-brand blink" href="../../index.html">ARCADE RETRO</a>
@@ -35,19 +31,17 @@
       </div>
     </div>
   </nav>
-
   <div class="container my-4">
     <div class="game-header text-center mb-4">
       <h1 class="game-title">ASTEROIDS ARCADE</h1>
       <p class="game-subtitle">Destruye los asteroides y sobrevive en el espacio</p>
     </div>
-
     <div class="game-container">
-      <div id="startScreen" class="start-screen">
+      <div id="pantallaInicio" class="start-screen">
         <div class="start-content">
           <h2 class="start-title">¡ASTEROIDS ARCADE!</h2>
           <p class="start-subtitle">¿Listo para navegar el espacio profundo?</p>
-          <button id="startBtn" class="btn btn-neon btn-neon-start">COMENZAR JUEGO</button>
+          <button id="botonInicio" class="btn btn-neon btn-neon-start">COMENZAR JUEGO</button>
           <div class="start-controls">
             <h3>CONTROLES</h3>
             <div class="control-grid">
@@ -68,50 +62,45 @@
           </div>
         </div>
       </div>
-
-      <div class="game-content" style="display: none;">
-
+      <div class="contenidoJuego" style="display: none;">
         <div class="game-ui-overlay">
             <div class="ui-container">
                 <div class="ui-item">
                     <span class="ui-label">PUNTAJE:</span>
-                    <span id="score" class="ui-value">0</span>
+                    <span id="puntuacion" class="ui-value">0</span>
                 </div>
                 <div class="ui-item">
                     <span class="ui-label">ASTEROIDES:</span>
-                    <span id="asteroidsCount" class="ui-value">0</span>
+                    <span id="contadorAsteroides" class="ui-value">0</span>
                 </div>
                 <div class="ui-item">
                     <span class="ui-label">NIVEL:</span>
-                    <span id="level" class="ui-value">1</span>
+                    <span id="nivel" class="ui-value">1</span>
                 </div>
             </div>
         </div>
-
         <div class="game-area-wrapper">
           <div class="game-area">
-            <canvas id="gameCanvas"></canvas>
+            <canvas id="lienzoJuego"></canvas>
           </div>
-          
           <div class="game-sidebar">
             <div class="info-card">
               <h3>ESTADÍSTICAS</h3>
               <div class="stats-grid">
                 <div class="stat">
                   <span class="stat-label">Velocidad:</span>
-                  <span id="speedValue" class="stat-value">0</span>
+                  <span id="valorVelocidad" class="stat-value">0</span>
                 </div>
                 <div class="stat">
                   <span class="stat-label">Balas:</span>
-                  <span id="bulletsCount" class="stat-value">0</span>
+                  <span id="contadorBalas" class="stat-value">0</span>
                 </div>
                 <div class="stat">
                   <span class="stat-label">Récord:</span>
-                  <span id="highScore" class="stat-value">0</span>
+                  <span id="puntuacionMaxima" class="stat-value">0</span>
                 </div>
               </div>
             </div>
-
             <div class="game-features">
               <h3>CARACTERÍSTICAS</h3>
               <ul>
@@ -122,47 +111,43 @@
                 <li>Física realista</li>
               </ul>
             </div>
-
             <div class="game-controls">
-              <button id="pauseBtn" class="btn btn-neon btn-neon-primary">PAUSAR</button>
-              <button id="restartBtn" class="btn btn-neon btn-neon-secondary">REINICIAR</button>
+              <button id="botonPausa" class="btn btn-neon btn-neon-primary">PAUSAR</button>
+              <button id="botonReiniciar" class="btn btn-neon btn-neon-secondary">REINICIAR</button>
             </div>
           </div>
         </div>
       </div>
-
-      <div id="gameOverScreen" class="game-over-screen" style="display: none;">
+      <div id="pantallaGameOver" class="game-over-screen" style="display: none;">
         <div class="game-over-content">
           <h2 class="winner-text">¡JUEGO TERMINADO!</h2>
           <div class="final-stats">
             <div class="final-stat">
               <span>Puntuación Final:</span>
-              <span id="finalScore">0</span>
+              <span id="puntuacionFinal">0</span>
             </div>
             <div class="final-stat">
               <span>Nivel Alcanzado:</span>
-              <span id="finalLevel">1</span>
+              <span id="nivelFinal">1</span>
             </div>
             <div class="final-stat">
               <span>Asteroides Destruidos:</span>
-              <span id="finalAsteroids">0</span>
+              <span id="asteroidesFinales">0</span>
             </div>
           </div>
           <div class="game-over-buttons">
-            <button id="playAgainBtn" class="btn btn-neon btn-neon-primary">JUGAR DE NUEVO</button>
-            <button id="mainMenuBtn" class="btn btn-neon btn-neon-primary">VOLVER AL INICIO</button>
+            <button id="botonJugarOtraVez" class="btn btn-neon btn-neon-primary">JUGAR DE NUEVO</button>
+            <button id="botonMenuPrincipal" class="btn btn-neon btn-neon-primary">VOLVER AL INICIO</button>
           </div>
         </div>
       </div>
-
-      <div id="pauseScreen" class="pause-screen" style="display: none;">
+      <div id="pantallaPausa" class="pause-screen" style="display: none;">
         <div class="pause-content">
           <h2 class="pause-title">JUEGO PAUSADO</h2>
-          <button id="resumeBtn" class="btn btn-neon btn-neon-primary">CONTINUAR</button>
+          <button id="botonReanudar" class="btn btn-neon btn-neon-primary">CONTINUAR</button>
         </div>
       </div>
     </div>
-
     <div class="controls-info">
       <div class="control-group">
         <h3>CONSEJOS DE ASTEROIDS</h3>
@@ -176,7 +161,6 @@
       </div>
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
 </body>
